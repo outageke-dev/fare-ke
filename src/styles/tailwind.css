@@ -19,8 +19,8 @@
   --input: #f1f5f9;
   --ring: #0f5fc2;
   --radius: 10px;
-  --font-sans: 'DM Sans', sans-serif;
-  --font-mono: 'IBM Plex Mono', monospace;
+  --font-sans: 'Segoe UI', 'Helvetica Neue', Arial, system-ui, sans-serif;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
 
   --mode-bus: #16a34a;
   --mode-bus-bg: #dcfce7;

@@ -12,7 +12,7 @@ import {
   AlertCircle,
   Copy,
   Bus,
-  Train,
+  TrainFront,
   Zap,
   TramFront,
   Loader2,
@@ -20,12 +20,14 @@ import {
 import { toast } from 'sonner';
 import ModeBadge, { TransitMode } from '@/components/ui/ModeBadge';
 
+type ContributionMode = Extract<TransitMode, 'Bus' | 'Train' | 'Metro' | 'Tram'>;
+
 // ─── Types ─────────────────────────────────────────────────────────────────────
 interface ContributionForm {
   // Section 1: Route Info
   agency: string;
   agencyCustom: string;
-  transitMode: TransitMode;
+  transitMode: ContributionMode;
   routeNumber: string;
   routeName: string;
   originStop: string;
@@ -94,7 +96,7 @@ export default function FareContributionContent() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [contributionId] = useState('CONTRIB-' + Math.floor(10000 + Math.random() * 90000));
-  const [selectedMode, setSelectedMode] = useState<TransitMode>('SACCO');
+  const [selectedMode, setSelectedMode] = useState<ContributionMode>('Bus');
 
   const {
     register,
@@ -107,7 +109,7 @@ export default function FareContributionContent() {
     defaultValues: {
       agency: '',
       agencyCustom: '',
-      transitMode: 'SACCO',
+      transitMode: 'Bus',
       routeNumber: '',
       routeName: '',
       originStop: '',
@@ -235,10 +237,10 @@ export default function FareContributionContent() {
                   Select the type of transit service for this route.
                 </p>
                 <div className="flex gap-3 flex-wrap">
-                  {(['Bus', 'Train', 'Metro', 'Tram'] as TransitMode[]).map((mode) => {
-                    const icons: Record<TransitMode, React.ReactNode> = {
+                  {(['Bus', 'Train', 'Metro', 'Tram'] as ContributionMode[]).map((mode) => {
+                    const icons: Record<ContributionMode, React.ReactNode> = {
                       Bus: <Bus size={16} />,
-                      Train: <Train size={16} />,
+                      Train: <TrainFront size={16} />,
                       Metro: <Zap size={16} />,
                       Tram: <TramFront size={16} />,
                     };

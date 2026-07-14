@@ -1,7 +1,7 @@
 import React from 'react';
-import { Bus, Zap, TramFront } from 'lucide-react';
+import { Bus, Train, TrainFront, TramFront, Zap } from 'lucide-react';
 
-export type TransitMode = 'SACCO' | 'Matatu' | 'Bus';
+export type TransitMode = 'SACCO' | 'Matatu' | 'Bus' | 'Train' | 'Metro' | 'Tram';
 
 const modeConfig: Record<
   TransitMode,
@@ -18,6 +18,21 @@ const modeConfig: Record<
     bgClass: 'bg-mode-metro-bg',
   },
   Bus: {
+    icon: <Bus size={11} />,
+    colorClass: 'text-mode-bus',
+    bgClass: 'bg-mode-bus-bg',
+  },
+  Train: {
+    icon: <Train size={11} />,
+    colorClass: 'text-mode-train',
+    bgClass: 'bg-mode-train-bg',
+  },
+  Metro: {
+    icon: <TrainFront size={11} />,
+    colorClass: 'text-mode-metro',
+    bgClass: 'bg-mode-metro-bg',
+  },
+  Tram: {
     icon: <TramFront size={11} />,
     colorClass: 'text-mode-tram',
     bgClass: 'bg-mode-tram-bg',
