@@ -70,6 +70,8 @@ export default function FareContributionContent() {
     },
   });
 
+  const watchedAll = watch();
+
   const stepFields: (keyof ContributionForm)[][] = [
     ['transitMode', 'originStop', 'destinationStop', 'city'],
     ['singleFare', 'sourceType'],
