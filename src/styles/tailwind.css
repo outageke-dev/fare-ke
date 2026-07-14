@@ -24,12 +24,10 @@
 
   --mode-bus: #16a34a;
   --mode-bus-bg: #dcfce7;
-  --mode-train: #7c3aed;
-  --mode-train-bg: #ede9fe;
-  --mode-metro: #0f5fc2;
-  --mode-metro-bg: #dbeafe;
-  --mode-tram: #ea580c;
-  --mode-tram-bg: #ffedd5;
+  --mode-matatu: #0f5fc2;
+  --mode-matatu-bg: #dbeafe;
+  --mode-motorbike: #ea580c;
+  --mode-motorbike-bg: #ffedd5;
 
   --status-verified: #16a34a;
   --status-verified-bg: #dcfce7;

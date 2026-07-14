@@ -1,41 +1,26 @@
 import React from 'react';
-import { Bus, Train, TrainFront, TramFront, Zap } from 'lucide-react';
+import { Bus, BusFront, Motorbike } from 'lucide-react';
 
-export type TransitMode = 'SACCO' | 'Matatu' | 'Bus' | 'Train' | 'Metro' | 'Tram';
+export type TransitMode = 'Bus' | 'Matatu' | 'Motorbike';
 
 const modeConfig: Record<
   TransitMode,
   { icon: React.ReactNode; colorClass: string; bgClass: string }
 > = {
-  SACCO: {
-    icon: <Bus size={11} />,
-    colorClass: 'text-mode-bus',
-    bgClass: 'bg-mode-bus-bg',
-  },
-  Matatu: {
-    icon: <Zap size={11} />,
-    colorClass: 'text-mode-metro',
-    bgClass: 'bg-mode-metro-bg',
-  },
   Bus: {
     icon: <Bus size={11} />,
     colorClass: 'text-mode-bus',
     bgClass: 'bg-mode-bus-bg',
   },
-  Train: {
-    icon: <Train size={11} />,
-    colorClass: 'text-mode-train',
-    bgClass: 'bg-mode-train-bg',
+  Matatu: {
+    icon: <BusFront size={11} />,
+    colorClass: 'text-mode-matatu',
+    bgClass: 'bg-mode-matatu-bg',
   },
-  Metro: {
-    icon: <TrainFront size={11} />,
-    colorClass: 'text-mode-metro',
-    bgClass: 'bg-mode-metro-bg',
-  },
-  Tram: {
-    icon: <TramFront size={11} />,
-    colorClass: 'text-mode-tram',
-    bgClass: 'bg-mode-tram-bg',
+  Motorbike: {
+    icon: <Motorbike size={11} />,
+    colorClass: 'text-mode-motorbike',
+    bgClass: 'bg-mode-motorbike-bg',
   },
 };
 

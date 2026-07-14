@@ -11,7 +11,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: 'FareTrack — Public Transit Fare Lookup & Tracker',
   description:
-    'Search, contribute, and track public transit fares for bus, train, and metro routes across cities — the only centralized fare database.',
+    'Search, contribute, and track public transit fares for bus, matatu, and motorbike routes across cities.',
   icons: {
     icon: [{ url: '/favicon.ico', type: 'image/x-icon' }],
   },
