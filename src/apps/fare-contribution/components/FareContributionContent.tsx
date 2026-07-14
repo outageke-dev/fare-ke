@@ -12,132 +12,87 @@ import {
   AlertCircle,
   Copy,
   Bus,
-  BusFront,
-  Motorbike,
+  Train,
+  Zap,
+  TramFront,
   Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ModeBadge, { TransitMode } from '@/components/ui/ModeBadge';
 
-type ContributionMode = Extract<TransitMode, 'Bus' | 'Matatu' | 'Motorbike'>;
-
 // ─── Types ─────────────────────────────────────────────────────────────────────
 interface ContributionForm {
-  // Section 1: Route Info
+  // Route Info
   agency: string;
-  agencyCustom: string;
-  transitMode: ContributionMode;
+  transitMode: TransitMode;
   routeNumber: string;
   routeName: string;
   originStop: string;
   destinationStop: string;
   city: string;
-  // Section 2: Fare Details
+  // Fare Details
   singleFare: string;
-  fareType: string;
-  hasPeakPricing: boolean;
-  peakFare: string;
-  offPeakFare: string;
-  weeklyPass: string;
-  monthlyPass: string;
-  zone: string;
-  zoneFrom: string;
-  zoneTo: string;
   currency: string;
-  // Section 3: Validity
-  effectiveDate: string;
-  expiryDate: string;
-  fareNotes: string;
-  isAccessible: boolean;
-  // Section 4: Evidence
-  sourceUrl: string;
+  // Source
   sourceType: string;
-  additionalNotes: string;
 }
 
 const AGENCIES = [
-  'Bus operator',
-  'Matatu SACCO',
-  'Motorbike stage',
+  'Jatco SACCO',
+  'Acsend SACCO',
+  'Coastal SACCO',
+  'Dar Express SACCO',
+  'Mash East SACCO',
+  'Emali SACCO',
+  'Scandinavian SACCO',
+  'Majani Express SACCO',
+  'Southern Star SACCO',
+  'Goldline SACCO',
   'Other (specify below)',
-];
-
-const FARE_TYPES = [
-  { id: 'ft-single', value: 'single', label: 'Single Trip' },
-  { id: 'ft-day', value: 'day', label: 'Day Pass' },
-  { id: 'ft-weekly', value: 'weekly', label: 'Weekly Pass' },
-  { id: 'ft-monthly', value: 'monthly', label: 'Monthly Pass' },
-  { id: 'ft-annual', value: 'annual', label: 'Annual Pass' },
-  { id: 'ft-student', value: 'student', label: 'Student / Reduced' },
-  { id: 'ft-senior', value: 'senior', label: 'Senior / Disabled' },
 ];
 
 const SOURCE_TYPES = [
   { id: 'src-official', value: 'official-website', label: 'Official Agency Website' },
   { id: 'src-app', value: 'official-app', label: 'Official Transit App' },
   { id: 'src-ticket', value: 'ticket-machine', label: 'Ticket Machine / Kiosk' },
-  { id: 'src-staff', value: 'staff-confirmation', label: 'Staff Confirmation' },
   { id: 'src-personal', value: 'personal-travel', label: 'Personal Travel (no documentation)' },
-  { id: 'src-press', value: 'press-release', label: 'Press Release / News Article' },
 ];
 
-const STEPS = ['Route Info', 'Fare Details', 'Validity', 'Evidence', 'Review'];
+const STEPS = ['Route Info', 'Fare & Source', 'Review'];
 
 export default function FareContributionContent() {
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [contributionId] = useState('CONTRIB-' + Math.floor(10000 + Math.random() * 90000));
-  const [selectedMode, setSelectedMode] = useState<ContributionMode>('Bus');
+  const [selectedMode, setSelectedMode] = useState<TransitMode>('SACCO');
 
   const {
     register,
     handleSubmit,
     watch,
-    setValue,
     trigger,
     formState: { errors },
   } = useForm<ContributionForm>({
     defaultValues: {
       agency: '',
-      agencyCustom: '',
-      transitMode: 'Bus',
+      transitMode: 'SACCO',
       routeNumber: '',
       routeName: '',
       originStop: '',
       destinationStop: '',
       city: '',
       singleFare: '',
-      fareType: 'single',
-      hasPeakPricing: false,
-      peakFare: '',
-      offPeakFare: '',
-      weeklyPass: '',
-      monthlyPass: '',
-      zone: 'Flat Fare',
-      zoneFrom: '',
-      zoneTo: '',
-      currency: 'KES',
-      effectiveDate: '',
-      expiryDate: '',
-      fareNotes: '',
-      isAccessible: false,
-      sourceUrl: '',
+      currency: 'KSH',
       sourceType: 'official-website',
-      additionalNotes: '',
     },
   });
 
   const watchedAgency = watch('agency');
-  const watchedHasPeak = watch('hasPeakPricing');
-  const watchedZone = watch('zone');
-  const watchedAll = watch();
 
   const stepFields: (keyof ContributionForm)[][] = [
     ['agency', 'transitMode', 'routeNumber', 'routeName', 'originStop', 'destinationStop', 'city'],
-    ['singleFare', 'fareType'],
-    ['effectiveDate'],
-    ['sourceType'],
+    ['singleFare', 'sourceType'],
   ];
 
   const handleNext = async () => {
@@ -229,11 +184,12 @@ export default function FareContributionContent() {
                   Select the type of transit service for this route.
                 </p>
                 <div className="flex gap-3 flex-wrap">
-                  {(['Bus', 'Matatu', 'Motorbike'] as ContributionMode[]).map((mode) => {
-                    const icons: Record<ContributionMode, React.ReactNode> = {
+                  {(['Bus', 'Train', 'Metro', 'Tram'] as TransitMode[]).map((mode) => {
+                    const icons: Record<TransitMode, React.ReactNode> = {
                       Bus: <Bus size={16} />,
-                      Matatu: <BusFront size={16} />,
-                      Motorbike: <Motorbike size={16} />,
+                      Train: <Train size={16} />,
+                      Metro: <Zap size={16} />,
+                      Tram: <TramFront size={16} />,
                     };
                     return (
                       <button
@@ -416,32 +372,32 @@ export default function FareContributionContent() {
             </div>
           )}
 
-          {/* ── Step 1: Fare Details ── */}
+          {/* ── Step 1: Fare & Source ── */}
           {step === 1 && (
             <div className="p-6 space-y-6 fade-in">
               <SectionHeader
-                title="Fare Details"
-                description="Enter the fare amounts for this route. Provide as much detail as you have."
+                title="Fare & Source"
+                description="Enter the single trip fare and where you got this information."
               />
 
               {/* Single Fare */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-foreground mb-1">
-                    Single Trip Fare (KSh) <span className="text-[color:var(--status-outdated)]">*</span>
+                    Single Trip Fare (KSH) <span className="text-[color:var(--status-outdated)]">*</span>
                   </label>
                   <p className="text-xs text-muted-foreground mb-2">
                     The standard one-way fare for this route.
                   </p>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-mono text-sm">KSh</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-mono text-sm">KSH</span>
                     <input
                       {...register('singleFare', {
                         required: 'Single fare is required',
-                        pattern: { value: /^\d+(\.\d{1,2})?$/, message: 'Enter a valid fare (e.g. 50 or 50.00)' },
+                        pattern: { value: /^\d+(\.\d{1,2})?$/, message: 'Enter a valid fare (e.g. 500)' },
                       })}
-                      placeholder="0.00"
-                      className={`w-full pl-7 pr-3 py-2.5 text-sm bg-input border rounded-lg font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all ${
+                      placeholder="0"
+                      className={`w-full pl-10 pr-3 py-2.5 text-sm bg-input border rounded-lg font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all ${
                         errors.singleFare ? 'border-[color:var(--status-outdated)]' : 'border-border'
                       }`}
                     />
@@ -453,273 +409,23 @@ export default function FareContributionContent() {
                     </p>
                   )}
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold text-foreground mb-1">
-                    Weekly Pass (optional)
-                  </label>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    Cost of a 7-day unlimited pass, if available.
-                  </p>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-mono text-sm">KSh</span>
-                    <input
-                      {...register('weeklyPass')}
-                      placeholder="0.00"
-                      className="w-full pl-7 pr-3 py-2.5 text-sm bg-input border border-border rounded-lg font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-foreground mb-1">
-                    Monthly Pass (optional)
-                  </label>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    Cost of a 30-day unlimited pass, if available.
-                  </p>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-mono text-sm">KSh</span>
-                    <input
-                      {...register('monthlyPass')}
-                      placeholder="0.00"
-                      className="w-full pl-7 pr-3 py-2.5 text-sm bg-input border border-border rounded-lg font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                    />
-                  </div>
-                </div>
               </div>
 
-              {/* Fare Type */}
+              {/* Source Type */}
               <div>
                 <label className="block text-sm font-semibold text-foreground mb-1">
-                  Fare Type <span className="text-[color:var(--status-outdated)]">*</span>
+                  Information Source <span className="text-[color:var(--status-outdated)]">*</span>
                 </label>
                 <p className="text-xs text-muted-foreground mb-2">
-                  What category of rider does this fare apply to?
+                  Where did you get this fare information?
                 </p>
                 <div className="flex gap-2 flex-wrap">
-                  {FARE_TYPES.map((ft) => (
-                    <label
-                      key={ft.id}
-                      className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm cursor-pointer transition-all ${
-                        watch('fareType') === ft.value
-                          ? 'bg-primary/10 border-primary text-primary' :'bg-muted/40 border-border text-muted-foreground hover:border-primary/30'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        value={ft.value}
-                        {...register('fareType')}
-                        className="sr-only"
-                      />
-                      {ft.label}
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Zone */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-foreground mb-1">
-                    Zone Structure
-                  </label>
-                  <select
-                    {...register('zone')}
-                    className="w-full text-sm bg-input border border-border rounded-lg px-3 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  >
-                    <option value="Flat Fare">Flat Fare (no zones)</option>
-                    <option value="Zone-Based">Zone-Based</option>
-                    <option value="Distance-Based">Distance-Based</option>
-                  </select>
-                </div>
-                {watchedZone === 'Zone-Based' && (
-                  <>
-                    <div>
-                      <label className="block text-sm font-semibold text-foreground mb-1">
-                        From Zone
-                      </label>
-                      <input
-                        {...register('zoneFrom')}
-                        placeholder="e.g. Zone 1"
-                        className="w-full text-sm bg-input border border-border rounded-lg px-3 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-foreground mb-1">
-                        To Zone
-                      </label>
-                      <input
-                        {...register('zoneTo')}
-                        placeholder="e.g. Zone 3"
-                        className="w-full text-sm bg-input border border-border rounded-lg px-3 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Peak Pricing Toggle */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div>
-                    <label className="text-sm font-semibold text-foreground">
-                      Peak / Off-Peak Pricing
-                    </label>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Does this route have different fares during peak hours?
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setValue('hasPeakPricing', !watchedHasPeak)}
-                    className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${
-                      watchedHasPeak ? 'bg-primary' : 'bg-muted'
-                    }`}
-                  >
-                    <span
-                      className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${
-                        watchedHasPeak ? 'translate-x-5' : 'translate-x-0.5'
-                      }`}
-                    />
-                  </button>
-                </div>
-                {watchedHasPeak && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3 p-4 bg-accent/5 border border-accent/20 rounded-lg fade-in">
-                    <div>
-                      <label className="block text-sm font-semibold text-foreground mb-1">
-                        Peak Fare (KSh)
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-mono text-sm">KSh</span>
-                        <input
-                          {...register('peakFare')}
-                          placeholder="0.00"
-                          className="w-full pl-7 pr-3 py-2.5 text-sm bg-input border border-border rounded-lg font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-foreground mb-1">
-                        Off-Peak Fare (KSh)
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-mono text-sm">KSh</span>
-                        <input
-                          {...register('offPeakFare')}
-                          placeholder="0.00"
-                          className="w-full pl-7 pr-3 py-2.5 text-sm bg-input border border-border rounded-lg font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Accessible */}
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="isAccessible"
-                  {...register('isAccessible')}
-                  className="w-4 h-4 accent-primary rounded"
-                />
-                <label htmlFor="isAccessible" className="text-sm font-medium text-foreground cursor-pointer">
-                  This route / station is wheelchair accessible (ADA compliant)
-                </label>
-              </div>
-            </div>
-          )}
-
-          {/* ── Step 2: Validity ── */}
-          {step === 2 && (
-            <div className="p-6 space-y-6 fade-in">
-              <SectionHeader
-                title="Fare Validity"
-                description="When does this fare apply? Provide dates and any relevant context."
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-foreground mb-1">
-                    Effective Date <span className="text-[color:var(--status-outdated)]">*</span>
-                  </label>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    The date this fare went into effect or was observed.
-                  </p>
-                  <input
-                    type="date"
-                    {...register('effectiveDate', { required: 'Effective date is required' })}
-                    className={`w-full text-sm bg-input border rounded-lg px-3 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all ${
-                      errors.effectiveDate ? 'border-[color:var(--status-outdated)]' : 'border-border'
-                    }`}
-                  />
-                  {errors.effectiveDate && (
-                    <p className="text-xs text-[color:var(--status-outdated)] mt-1 flex items-center gap-1">
-                      <AlertCircle size={11} />
-                      {errors.effectiveDate.message}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-foreground mb-1">
-                    Expiry Date (optional)
-                  </label>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    If known, when does this fare expire or change?
-                  </p>
-                  <input
-                    type="date"
-                    {...register('expiryDate')}
-                    className="w-full text-sm bg-input border border-border rounded-lg px-3 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-foreground mb-1">
-                  Fare Notes (optional)
-                </label>
-                <p className="text-xs text-muted-foreground mb-2">
-                  Any additional context — e.g. &ldquo;Fare increase announced for August 2026&rdquo;, transfer rules, special conditions.
-                </p>
-                <textarea
-                  {...register('fareNotes')}
-                  rows={4}
-                  placeholder="e.g. Fare increase of KSh 25 effective April 1, 2026. Transfers to bus within 2 hours are free."
-                  className="w-full text-sm bg-input border border-border rounded-lg px-3 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
-                />
-              </div>
-
-              <div className="flex items-start gap-2 bg-secondary/50 border border-secondary rounded-lg p-3 text-xs text-secondary-foreground">
-                <Info size={14} className="shrink-0 mt-0.5" />
-                <span>
-                  Fares without an expiry date will be marked as valid until a newer contribution supersedes them or a contributor flags them as outdated.
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* ── Step 3: Evidence ── */}
-          {step === 3 && (
-            <div className="p-6 space-y-6 fade-in">
-              <SectionHeader
-                title="Source & Evidence"
-                description="Help us verify this fare by providing the source. The more evidence, the faster your contribution gets verified."
-              />
-
-              <div>
-                <label className="block text-sm font-semibold text-foreground mb-1">
-                  Source Type <span className="text-[color:var(--status-outdated)]">*</span>
-                </label>
-                <p className="text-xs text-muted-foreground mb-2">
-                  How did you obtain this fare information?
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {SOURCE_TYPES.map((st) => (
                     <label
                       key={st.id}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-lg border cursor-pointer transition-all ${
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm cursor-pointer transition-all ${
                         watch('sourceType') === st.value
-                          ? 'bg-primary/10 border-primary text-primary' :'bg-muted/30 border-border text-foreground hover:border-primary/30'
+                          ? 'bg-primary/10 border-primary text-primary' :'bg-muted/40 border-border text-muted-foreground hover:border-primary/30'
                       }`}
                     >
                       <input
@@ -728,81 +434,25 @@ export default function FareContributionContent() {
                         {...register('sourceType')}
                         className="sr-only"
                       />
-                      <span className="text-sm font-medium">{st.label}</span>
+                      {st.label}
                     </label>
                   ))}
                 </div>
               </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-foreground mb-1">
-                  Source URL (optional but recommended)
-                </label>
-                <p className="text-xs text-muted-foreground mb-2">
-                  Link to the official agency page, press release, or news article confirming this fare.
-                </p>
-                <input
-                  {...register('sourceUrl', {
-                    pattern: {
-                      value: /^https?:\/\/.+/,
-                      message: 'Enter a valid URL starting with http:// or https://',
-                    },
-                  })}
-                  placeholder="https://www.transitagency.gov/fares"
-                  className={`w-full text-sm bg-input border rounded-lg px-3 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all ${
-                    errors.sourceUrl ? 'border-[color:var(--status-outdated)]' : 'border-border'
-                  }`}
-                />
-                {errors.sourceUrl && (
-                  <p className="text-xs text-[color:var(--status-outdated)] mt-1 flex items-center gap-1">
-                    <AlertCircle size={11} />
-                    {errors.sourceUrl.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Upload */}
-              <div>
-                <label className="block text-sm font-semibold text-foreground mb-1">
-                  Upload Evidence (optional)
-                </label>
-                <p className="text-xs text-muted-foreground mb-2">
-                  Screenshot of fare schedule, ticket stub, or agency announcement. JPG, PNG, or PDF up to 5MB.
-                </p>
-                <div className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center text-center hover:border-primary/40 transition-colors cursor-pointer">
-                  <Upload size={24} className="text-muted-foreground mb-2" />
-                  <p className="text-sm font-medium text-foreground mb-1">
-                    Drop files here or click to upload
-                  </p>
-                  <p className="text-xs text-muted-foreground">JPG, PNG, PDF · Max 5MB</p>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-foreground mb-1">
-                  Additional Notes (optional)
-                </label>
-                <textarea
-                  {...register('additionalNotes')}
-                  rows={3}
-                  placeholder="Anything else the verification team should know about this contribution…"
-                  className="w-full text-sm bg-input border border-border rounded-lg px-3 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
-                />
-              </div>
             </div>
           )}
 
-          {/* ── Step 4: Review ── */}
-          {step === 4 && (
+          {/* ── Step 2: Review ── */}
+          {step === 2 && (
             <div className="p-6 space-y-6 fade-in">
               <SectionHeader
                 title="Review Your Contribution"
-                description="Please review all details before submitting. Your contribution will be reviewed by the FareTrack community."
+                description="Please review all details before submitting. Your contribution helps the FareTrack community!"
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <ReviewSection title="Route Info">
-                  <ReviewRow label="Agency" value={watchedAll.agency === 'Other (specify below)' ? watchedAll.agencyCustom : watchedAll.agency} />
+                  <ReviewRow label="Agency" value={watchedAll.agency} />
                   <ReviewRow label="Mode">
                     <ModeBadge mode={selectedMode} />
                   </ReviewRow>
@@ -811,28 +461,9 @@ export default function FareContributionContent() {
                   <ReviewRow label="Destination" value={watchedAll.destinationStop} />
                   <ReviewRow label="City" value={watchedAll.city} />
                 </ReviewSection>
-                <ReviewSection title="Fare Details">
-                  <ReviewRow label="Single Fare" value={watchedAll.singleFare ? `KSh ${watchedAll.singleFare}` : '—'} mono />
-                  <ReviewRow label="Weekly Pass" value={watchedAll.weeklyPass ? `KSh ${watchedAll.weeklyPass}` : 'N/A'} mono />
-                  <ReviewRow label="Monthly Pass" value={watchedAll.monthlyPass ? `KSh ${watchedAll.monthlyPass}` : 'N/A'} mono />
-                  <ReviewRow label="Fare Type" value={FARE_TYPES.find((f) => f.value === watchedAll.fareType)?.label || '—'} />
-                  <ReviewRow label="Zone" value={watchedAll.zone} />
-                  {watchedAll.hasPeakPricing && (
-                    <>
-                      <ReviewRow label="Peak Fare" value={`KSh ${watchedAll.peakFare}`} mono />
-                      <ReviewRow label="Off-Peak Fare" value={`KSh ${watchedAll.offPeakFare}`} mono />
-                    </>
-                  )}
-                </ReviewSection>
-                <ReviewSection title="Validity">
-                  <ReviewRow label="Effective Date" value={watchedAll.effectiveDate} />
-                  <ReviewRow label="Expiry Date" value={watchedAll.expiryDate || 'Not specified'} />
-                  <ReviewRow label="Accessible" value={watchedAll.isAccessible ? 'Yes ♿' : 'Not marked'} />
-                  {watchedAll.fareNotes && <ReviewRow label="Notes" value={watchedAll.fareNotes} />}
-                </ReviewSection>
-                <ReviewSection title="Evidence">
+                <ReviewSection title="Fare & Source">
+                  <ReviewRow label="Single Fare" value={watchedAll.singleFare ? `KSH ${watchedAll.singleFare}` : '—'} mono />
                   <ReviewRow label="Source Type" value={SOURCE_TYPES.find((s) => s.value === watchedAll.sourceType)?.label || '—'} />
-                  <ReviewRow label="Source URL" value={watchedAll.sourceUrl || 'Not provided'} />
                 </ReviewSection>
               </div>
 
