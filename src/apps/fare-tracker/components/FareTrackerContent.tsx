@@ -283,6 +283,32 @@ const fareAlerts: FareAlert[] = [];
   },
 */
 
+// Helper function to calculate time since fare changed
+function getTimeSince(dateString: string): string {
+  const monthMap: Record<string, number> = {
+    'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+    'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11,
+  };
+
+  if (dateString === '—') return '—';
+
+  const [month, year] = dateString.split(' ');
+  if (!month || !year) return dateString;
+
+  const changeDate = new Date(parseInt(year), monthMap[month] || 0, 1);
+  const today = new Date(2026, 6, 14); // Jul 14, 2026
+  const diffTime = today.getTime() - changeDate.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return '1 day ago';
+  if (diffDays < 7) return `KSH{diffDays} days ago`;
+  if (diffDays < 30) return `KSH{Math.floor(diffDays / 7)} weeks ago`;
+  if (diffDays < 365) return `KSH{Math.floor(diffDays / 30)} months ago`;
+
+  return dateString;
+}
+
 export default function FareTrackerContent() {
   const [routes,setRoutes] = useState(trackedRoutes);
   const [selectedRouteId, setSelectedRouteId] = useState<string>('track-001');
@@ -325,7 +351,7 @@ export default function FareTrackerContent() {
     if (selectedRouteId === id && routes.length > 1) {
       setSelectedRouteId(routes.find((r) => r.id !== id)?.id || '');
     }
-    toast.success(`Removed ${route?.routeName} from tracker`);
+    toast.success(`Removed KSH{route?.routeName} from tracker`);
   };
 
   const handleToggleAlert = (id: string) => {
@@ -417,7 +443,7 @@ export default function FareTrackerContent() {
                 className="text-xs bg-input border border-border rounded-lg px-3 py-1.5 text-foreground focus:outline-none focus:ring-2 focus:ring-ring max-w-[220px] truncate"
               >
                 {routes.map((r) => (
-                  <option key={`chart-select-${r.id}`} value={r.id}>
+                  <option key={`chart-select-KSH{r.id}`} value={r.id}>
                     {r.routeNumber} — {r.routeName}
                   </option>
                 ))}
@@ -440,7 +466,7 @@ export default function FareTrackerContent() {
                 </p>
               </div>
               <div className="text-right shrink-0">
-                <div className="fare-value text-xl text-foreground">${selectedRoute.currentFare.toFixed(2)}</div>
+                <div className="fare-value text-xl text-foreground">KSH{selectedRoute.currentFare.toFixed(2)}</div>
                 <ChangeChip direction={selectedRoute.changeDirection} pct={selectedRoute.changePct} />
               </div>
             </div>
@@ -493,11 +519,11 @@ export default function FareTrackerContent() {
           <div className="flex items-center gap-2">
             {/* Mode filter */}
             <div className="flex items-center gap-1">
-              {(['All', 'Bus', 'Train', 'Metro', 'Tram'] as (TransitMode | 'All')[]).map((mode) => (
+              {(['All', 'Bus', 'Matatu', 'Motorbike'] as (TransitMode | 'All')[]).map((mode) => (
                 <button
-                  key={`filter-${mode}`}
+                  key={`filter-KSH{mode}`}
                   onClick={() => setFilterMode(mode)}
-                  className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-all ${
+                  className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-all KSH{
                     filterMode === mode
                       ? 'bg-primary text-primary-foreground border-primary'
                       : 'bg-muted/40 text-muted-foreground border-border hover:border-primary/30'
@@ -559,7 +585,7 @@ export default function FareTrackerContent() {
                 <tr
                   key={route.id}
                   onClick={() => setSelectedRouteId(route.id)}
-                  className={`border-b border-border cursor-pointer transition-colors hover:bg-muted/40 ${
+                  className={`border-b border-border cursor-pointer transition-colors hover:bg-muted/40 KSH{
                     selectedRouteId === route.id ? 'bg-primary/5' : idx % 2 === 1 ? 'bg-muted/10' : ''
                   }`}
                 >
@@ -593,19 +619,19 @@ export default function FareTrackerContent() {
                   </td>
                   <td className="px-4 py-3.5 text-right">
                     <span className="fare-value text-base text-foreground">
-                      ${route.currentFare.toFixed(2)}
+                      KSH{route.currentFare.toFixed(2)}
                     </span>
                   </td>
                   <td className="px-4 py-3.5 text-right">
                     <span className="fare-value text-sm text-muted-foreground">
-                      ${route.previousFare.toFixed(2)}
+                      KSH{route.previousFare.toFixed(2)}
                     </span>
                   </td>
                   <td className="px-4 py-3.5 text-center">
                     <ChangeChip direction={route.changeDirection} pct={route.changePct} />
                   </td>
                   <td className="px-4 py-3.5">
-                    <span className="text-xs text-muted-foreground font-mono">{route.changeDate}</span>
+                    <span className="text-xs text-muted-foreground font-mono">{getTimeSince(route.changeDate)}</span>
                   </td>
                   <td className="px-4 py-3.5">
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -617,7 +643,7 @@ export default function FareTrackerContent() {
                     <button
                       onClick={(e) => { e.stopPropagation(); handleToggleAlert(route.id); }}
                       title={alertsMap[route.id] ? 'Disable fare alerts' : 'Enable fare alerts'}
-                      className={`p-1.5 rounded-lg transition-colors ${
+                      className={`p-1.5 rounded-lg transition-colors KSH{
                         alertsMap[route.id]
                           ? 'bg-primary/10 text-primary' :'text-muted-foreground hover:bg-muted/50'
                       }`}
@@ -701,7 +727,7 @@ function KpiCard({
 
   return (
     <div className="bg-card border border-border rounded-xl shadow-card p-4 flex items-start gap-3">
-      <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${colorMap[color]}`}>
+      <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 KSH{colorMap[color]}`}>
         {icon}
       </div>
       <div className="min-w-0">
@@ -733,7 +759,7 @@ function AlertFeedItem({ alert }: { alert: FareAlert }) {
 
   return (
     <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 border border-border hover:bg-muted/50 transition-colors">
-      <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${bgMap[alert.alertType]}`}>
+      <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 KSH{bgMap[alert.alertType]}`}>
         {iconMap[alert.alertType]}
       </div>
       <div className="flex-1 min-w-0">
@@ -742,7 +768,7 @@ function AlertFeedItem({ alert }: { alert: FareAlert }) {
           <ModeBadge mode={alert.mode} />
           {alert.fareChange && (
             <span
-              className={`text-xs font-mono font-bold ${
+              className={`text-xs font-mono font-bold KSH{
                 alert.alertType === 'increase' ?'text-[color:var(--change-up)]' :'text-[color:var(--change-down)]'
               }`}
             >
