@@ -1,14 +1,19 @@
-# Fare Tracker KE
+# Nauli
 
-A modern Next.js 15 application for tracking public transportation fares across Kenya, featuring SACCOs, Matatus, and buses. Built with TypeScript and Tailwind CSS.
+A fast, focused matatu fare tracking app for Kenya. 
+
+**Answers one question:** "How much am I most likely to pay if I board a matatu RIGHT NOW?"
+
+Nauli reports what commuters are **actually paying in real time**, based on community intelligence (like Waze for matatu fares).
 
 ## 🚀 Features
 
-- **Next.js 15** - Latest version with improved performance and features
-- **React 19** - Latest React version with enhanced capabilities
-- **Tailwind CSS** - Utility-first CSS framework for rapid UI development
-- **Kenyan SACCO Tracking** - Monitor fare changes across popular Kenyan transportation operators
-- **Fare Contributions** - Community-driven fare data collection and verification
+- **Real-time fare estimates** - Based on actual community reports
+- **Confidence scoring** - Shows reliability of the current estimate
+- **Fast reporting** - Submit a fare in under 5 seconds
+- **Weather & traffic context** - Optional details help explain fare changes
+- **Community intelligence** - Like Waze, but for matatu fares in Kenya
+- **Simple, focused UI** - Get the fare you need in 3 seconds
 
 ## 🛠️ Installation
 
@@ -45,17 +50,32 @@ nextjs/
 
 ```
 
-## 🧩 Page Editing
+## 📖 How It Works
 
-You can start editing the page by modifying `src/app/page.tsx`. The page auto-updates as you edit the file.
+**Home Screen**
+- Enter FROM and TO locations
+- Press "Find Fare"
+- See Popular Routes and Recent Fare Updates
 
-## 🎨 Styling
+**Results Screen**
+- View estimated current fare
+- See confidence level based on community reports
+- Check lowest/highest fare for today
+- Read recent reports from other commuters
+- Submit your own fare report
+
+**Reporting Flow**
+- Required: From, To, Operator, Fare Paid
+- Optional: Traffic level, Weather, Notes
+- Takes under 5 seconds
+
+## 🎨 Design
 
 This project uses Tailwind CSS for styling with the following features:
-- Utility-first approach for rapid development
-- Custom theme configuration
-- Responsive design utilities
-- PostCSS and Autoprefixer integration
+- Simple, focused UI (no dashboards or hero sections)
+- Mobile-first responsive design
+- Minimal but functional interface
+- Fast load times
 
 ## 📦 Available Scripts
 
