@@ -28,6 +28,8 @@ interface ContributionForm {
   originStop: string;
   destinationStop: string;
   city: string;
+  pickupTime: string;
+  dropTime: string;
   // Fare Details
   singleFare: string;
   currency: string;
@@ -64,6 +66,8 @@ export default function FareContributionContent() {
       originStop: '',
       destinationStop: '',
       city: '',
+      pickupTime: '',
+      dropTime: '',
       singleFare: '',
       currency: 'KSH',
       sourceType: 'official-website',
@@ -73,7 +77,7 @@ export default function FareContributionContent() {
   const watchedAll = watch();
 
   const stepFields: (keyof ContributionForm)[][] = [
-    ['transitMode', 'originStop', 'destinationStop', 'city'],
+    ['transitMode', 'originStop', 'destinationStop', 'city', 'pickupTime', 'dropTime'],
     ['singleFare', 'sourceType'],
   ];
 
@@ -262,6 +266,52 @@ export default function FareContributionContent() {
                   </p>
                 )}
               </div>
+
+              {/* Pickup Time + Drop Time */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1">
+                    Pickup Time <span className="text-[color:var(--status-outdated)]">*</span>
+                  </label>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Departure time from origin stop.
+                  </p>
+                  <input
+                    {...register('pickupTime', { required: 'Pickup time is required' })}
+                    type="time"
+                    className={`w-full text-sm bg-input border rounded-lg px-3 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all ${
+                      errors.pickupTime ? 'border-[color:var(--status-outdated)]' : 'border-border'
+                    }`}
+                  />
+                  {errors.pickupTime && (
+                    <p className="text-xs text-[color:var(--status-outdated)] mt-1 flex items-center gap-1">
+                      <AlertCircle size={11} />
+                      {errors.pickupTime.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1">
+                    Drop Destination Time <span className="text-[color:var(--status-outdated)]">*</span>
+                  </label>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Estimated arrival time at destination.
+                  </p>
+                  <input
+                    {...register('dropTime', { required: 'Drop time is required' })}
+                    type="time"
+                    className={`w-full text-sm bg-input border rounded-lg px-3 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all ${
+                      errors.dropTime ? 'border-[color:var(--status-outdated)]' : 'border-border'
+                    }`}
+                  />
+                  {errors.dropTime && (
+                    <p className="text-xs text-[color:var(--status-outdated)] mt-1 flex items-center gap-1">
+                      <AlertCircle size={11} />
+                      {errors.dropTime.message}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
@@ -352,6 +402,8 @@ export default function FareContributionContent() {
                   <ReviewRow label="Origin" value={watchedAll.originStop} />
                   <ReviewRow label="Destination" value={watchedAll.destinationStop} />
                   <ReviewRow label="City" value={watchedAll.city} />
+                  <ReviewRow label="Pickup Time" value={watchedAll.pickupTime} />
+                  <ReviewRow label="Drop Time" value={watchedAll.dropTime} />
                 </ReviewSection>
                 <ReviewSection title="Fare & Source">
                   <ReviewRow label="Single Fare" value={watchedAll.singleFare ? `KSH ${watchedAll.singleFare}` : '—'} mono />
