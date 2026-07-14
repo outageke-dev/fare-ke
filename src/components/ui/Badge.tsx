@@ -17,11 +17,13 @@ export default function Badge({
     primary: 'badge-primary',
     success: 'badge-success',
     danger: 'badge-danger',
-    neutral: 'badge bg-muted/20 text-muted-foreground',
+    neutral: 'badge text-muted-foreground',
   }[variant];
 
+  const neutralStyle = variant === 'neutral' ? { backgroundColor: 'rgba(154, 154, 154, 0.1)' } : undefined;
+
   return (
-    <span className={`badge ${variantClass} ${className}`}>
+    <span className={`badge ${variantClass} ${className}`} style={neutralStyle}>
       {children}
     </span>
   );
