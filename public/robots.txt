@@ -1,0 +1,11 @@
+# Robots.txt for Nauli - Real-time matatu fares in Kenya
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /.well-known/
+
+# Crawl-delay (optional, in seconds)
+Crawl-delay: 1
+
+# Sitemaps
+Sitemap: https://nauli.ke/sitemap.xml
