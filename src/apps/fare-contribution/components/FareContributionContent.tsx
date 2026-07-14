@@ -287,9 +287,10 @@ export default function FareContributionContent() {
                     <input
                       {...register('singleFare', {
                         required: 'Single fare is required',
-                        pattern: { value: /^\d+(\.\d{1,2})?$/, message: 'Enter a valid fare (e.g. 500)' },
+                        pattern: { value: /^\d+(\.\d{1,2})?$/, message: 'Enter a valid fare (e.g. 0, 500, 1200)' },
+                        min: { value: 0, message: 'Fare must be 0 or more' },
                       })}
-                      placeholder="0"
+                      placeholder="e.g. 50, 500, 1200"
                       className={`w-full pl-10 pr-3 py-2.5 text-sm bg-input border rounded-lg font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all ${
                         errors.singleFare ? 'border-[color:var(--status-outdated)]' : 'border-border'
                       }`}
