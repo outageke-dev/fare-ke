@@ -3,10 +3,10 @@ import { notFound } from 'next/navigation';
 import FareRouteDetail from '@/components/routes/FareRouteDetail';
 
 interface RoutePageProps {
-  params: {
+  params: Promise<{
     from: string;
     to: string;
-  };
+  }>;
 }
 
 // Decode URL slug back to location names
@@ -20,36 +20,38 @@ function decodeRouteName(slug: string): string {
 export async function generateMetadata({
   params,
 }: RoutePageProps): Promise<Metadata> {
-  const from = decodeRouteName(params.from);
-  const to = decodeRouteName(params.to);
+  const { from, to } = await params;
+  const fromName = decodeRouteName(from);
+  const toName = decodeRouteName(to);
 
   return {
-    title: `Matatu Fare: ${from} to ${to} | Nauli`,
-    description: `Real-time matatu fares from ${from} to ${to}. Check current estimates, recent reports, and fare trends in Kenya.`,
+    title: `Matatu Fare: ${fromName} to ${toName} | Nauli`,
+    description: `Real-time matatu fares from ${fromName} to ${toName}. Check current estimates, recent reports, and fare trends in Kenya.`,
     keywords: [
-      `${from} to ${to} matatu fare`,
-      `${from} to ${to} fare`,
+      `${fromName} to ${toName} matatu fare`,
+      `${fromName} to ${toName} fare`,
       'matatu price',
       'Kenya transport',
     ],
     openGraph: {
-      title: `Matatu Fare: ${from} to ${to}`,
-      description: `Check real-time matatu fares from ${from} to ${to}. Based on community reports.`,
+      title: `Matatu Fare: ${fromName} to ${toName}`,
+      description: `Check real-time matatu fares from ${fromName} to ${toName}. Based on community reports.`,
       type: 'website',
-      url: `https://nauli.ke/${params.from}-to-${params.to}`,
+      url: `https://nauli.ke/${from}-to-${to}`,
     },
     twitter: {
       card: 'summary',
-      title: `Fare: ${from} → ${to}`,
+      title: `Fare: ${fromName} → ${toName}`,
       description: `Real-time matatu fares. Updated minutes ago.`,
     },
   };
 }
 
 // Generate static pages for popular routes
-export async function generateStaticParams() {
-  // Import the route list from database operations
-  // For now, return the most popular routes
+export async function generateStaticParams(): Promise<
+  Array<{ from: string; to: string }>
+> {
+  // Popular routes from Ahrefs keywords
   const popularRoutes = [
     { from: 'cbd', to: 'kangemi' },
     { from: 'cbd', to: 'karen' },
@@ -61,15 +63,13 @@ export async function generateStaticParams() {
     { from: 'nakuru', to: 'eldoret' },
   ];
 
-  return popularRoutes.map((route) => ({
-    from: route.from,
-    to: route.to,
-  }));
+  return popularRoutes;
 }
 
-export default function RouteDetailPage({ params }: RoutePageProps) {
-  const from = decodeRouteName(params.from);
-  const to = decodeRouteName(params.to);
+export default async function RouteDetailPage({ params }: RoutePageProps) {
+  const { from, to } = await params;
+  const fromName = decodeRouteName(from);
+  const toName = decodeRouteName(to);
 
-  return <FareRouteDetail from={from} to={to} />;
+  return <FareRouteDetail from={fromName} to={toName} />;
 }
