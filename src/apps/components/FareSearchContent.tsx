@@ -1,8 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, ChevronRight, AlertCircle, TrendingUp, TrendingDown, Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { toast } from 'sonner';
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import Section from '@/components/ui/Section';
+import Badge from '@/components/ui/Badge';
+import FareDisplay from '@/components/ui/FareDisplay';
+import ListItem from '@/components/ui/ListItem';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 interface FareReport {
@@ -23,6 +29,7 @@ interface FareData {
   lastUpdated: string;
   lowestToday: number;
   highestToday: number;
+  averageFare: number;
   reports: FareReport[];
 }
 
@@ -59,7 +66,6 @@ export default function FareSearchContent() {
     traffic: '',
     weather: '',
     notes: '',
-    showOptional: false,
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -70,7 +76,6 @@ export default function FareSearchContent() {
       return;
     }
 
-    // Mock results
     const mockResult: FareData = {
       from,
       to,
@@ -80,6 +85,7 @@ export default function FareSearchContent() {
       lastUpdated: '3 minutes ago',
       lowestToday: 140,
       highestToday: 180,
+      averageFare: 152,
       reports: [
         { id: '1', operator: 'Super Metro', fare: 150, reportedAt: '2 minutes ago' },
         { id: '2', operator: 'City Shuttle', fare: 150, reportedAt: '5 minutes ago' },
@@ -105,80 +111,56 @@ export default function FareSearchContent() {
     await new Promise((r) => setTimeout(r, 800));
     setSubmitting(false);
 
-    // Show thank you
-    toast.success('Thank you. Your report helps thousands of commuters.', {
+    toast.success('Thank you. Your report helps commuters across Kenya.', {
       duration: 4000,
     });
 
-    // Reset and return to results
     setReportForm({ from: '', to: '', operator: '', fare: '' });
-    setReportOptional({ traffic: '', weather: '', notes: '', showOptional: false });
+    setReportOptional({ traffic: '', weather: '', notes: '' });
     setShowReportingForm(false);
   };
 
   // ─── HOME SCREEN ──────────────────────────────────────────────────────────
   if (!results && !showReportingForm) {
     return (
-      <div className="space-y-8">
+      <div className="max-w-2xl mx-auto space-y-12">
         {/* Header */}
-        <header className="space-y-2">
-          <h1 className="text-4xl font-bold text-foreground">Nauli</h1>
-          <p className="text-sm text-muted-foreground">
-            Real-time matatu fares in Kenya. Know what you'll actually pay before you board.
+        <header className="space-y-2 py-4">
+          <h1>Nauli</h1>
+          <p className="text-muted-foreground">
+            Real-time matatu fares. Know what you'll pay before you board.
           </p>
         </header>
 
-        {/* Search Box */}
-        <form onSubmit={handleSearch} className="space-y-4" aria-label="Find matatu fare">
-          <section className="bg-card border border-border rounded-xl shadow-card p-6 space-y-4">
-            <h2 className="text-base font-semibold text-foreground">Where are you travelling?</h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="from-location" className="block text-xs font-medium text-muted-foreground mb-2">
-                  FROM <span aria-label="required">*</span>
-                </label>
-                <input
-                  id="from-location"
-                  type="text"
-                  value={from}
-                  onChange={(e) => setFrom(e.target.value)}
-                  placeholder="e.g. CBD"
-                  aria-label="Departure location"
-                  required
-                  className="w-full px-4 py-3 text-sm bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                />
-              </div>
-              <div>
-                <label htmlFor="to-location" className="block text-xs font-medium text-muted-foreground mb-2">
-                  TO <span aria-label="required">*</span>
-                </label>
-                <input
-                  id="to-location"
-                  type="text"
-                  value={to}
-                  onChange={(e) => setTo(e.target.value)}
-                  placeholder="e.g. Kangemi"
-                  aria-label="Destination location"
-                  required
-                  className="w-full px-4 py-3 text-sm bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                />
-              </div>
+        {/* Search */}
+        <form onSubmit={handleSearch} className="space-y-6">
+          <Section title="Where are you travelling?">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Input
+                id="from"
+                label="FROM"
+                value={from}
+                onChange={(e) => setFrom(e.target.value)}
+                placeholder="CBD"
+                required
+              />
+              <Input
+                id="to"
+                label="TO"
+                value={to}
+                onChange={(e) => setTo(e.target.value)}
+                placeholder="Kangemi"
+                required
+              />
             </div>
-
-            <button
-              type="submit"
-              aria-label="Search for matatu fares"
-              className="w-full px-4 py-3 bg-primary text-primary-foreground text-sm font-semibold rounded-lg hover:bg-primary/90 transition-all active:scale-95"
-            >
+            <Button variant="primary" size="lg" type="submit" className="w-full">
               Find Fare
-            </button>
-          </section>
+            </Button>
+          </Section>
         </form>
 
         {/* Popular Routes */}
-        <section className="bg-card border border-border rounded-xl shadow-card p-6 space-y-4" aria-label="Popular routes">
-          <h2 className="text-base font-semibold text-foreground">Popular Routes</h2>
+        <Section title="Popular Routes" subtitle="Quick links to common journeys">
           <div className="space-y-2">
             {mockRoutes.map((route, idx) => (
               <button
@@ -191,35 +173,31 @@ export default function FareSearchContent() {
                     form?.dispatchEvent(new Event('submit', { bubbles: true }));
                   }, 0);
                 }}
-                className="w-full flex items-center justify-between px-4 py-3 rounded-lg border border-border hover:bg-muted/50 transition-colors text-left text-sm"
+                className="w-full text-left px-4 py-3 rounded-lg bg-secondary/40 hover:bg-secondary/60 transition-colors"
               >
-                <span className="text-foreground font-medium">
+                <p className="text-sm font-medium text-foreground">
                   {route.from} → {route.to}
-                </span>
-                <ChevronRight size={16} className="text-muted-foreground" />
+                </p>
               </button>
             ))}
           </div>
-        </div>
+        </Section>
 
-        {/* Recent Fare Updates */}
-        <section className="bg-card border border-border rounded-xl shadow-card p-6 space-y-4" aria-label="Recent fare updates">
-          <h2 className="text-base font-semibold text-foreground">Recent Fare Updates</h2>
-          <div className="space-y-3" role="list">
+        {/* Recent Updates */}
+        <Section title="Recent Fare Updates" subtitle="Latest reports from commuters">
+          <div className="space-y-2">
             {mockRecentUpdates.map((update) => (
-              <article key={update.id} className="flex items-start justify-between px-3 py-2 rounded-lg bg-muted/30 text-sm" role="listitem">
-                <div className="min-w-0">
-                  <p className="font-medium text-foreground">{update.operator}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    <span aria-label="Fare">KES {update.fare}</span> • <time>{update.reportedAt}</time>
-                    {update.traffic && ` • ${update.traffic} traffic`}
-                    {update.weather && ` • ${update.weather}`}
-                  </p>
-                </div>
-              </article>
+              <ListItem
+                key={update.id}
+                primary={update.operator}
+                secondary={
+                  <time>{update.reportedAt}</time>
+                }
+                meta={`KES ${update.fare}`}
+              />
             ))}
           </div>
-        </section>
+        </Section>
       </div>
     );
   }
@@ -227,242 +205,200 @@ export default function FareSearchContent() {
   // ─── RESULTS SCREEN ────────────────────────────────────────────────────────
   if (results && !showReportingForm) {
     return (
-      <div className="space-y-6">
-        {/* Back button */}
-        <nav aria-label="Page navigation">
-          <button
+      <div className="max-w-2xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="space-y-2">
+          <Button
+            variant="ghost"
             onClick={() => {
               setResults(null);
               setFrom('');
               setTo('');
             }}
-            className="text-sm text-primary font-medium hover:underline"
-            aria-label="Return to fare search"
           >
-            ← Back to search
-          </button>
-        </nav>
-
-        {/* Route header */}
-        <header>
-          <h1 className="text-3xl font-bold text-foreground">
-            {results.from} <span aria-hidden="true">→</span> {results.to}
+            ← Back
+          </Button>
+          <h1 className="mt-2">
+            {results.from} → {results.to}
           </h1>
-        </header>
+        </div>
 
-        {/* Current Fare Card */}
-        <section className="bg-card border border-border rounded-xl shadow-card p-6 space-y-4" aria-label="Current fare information">
-          <div className="space-y-2">
-            <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+        {/* Current Fare */}
+        <div className="space-y-6 py-4">
+          <div>
+            <p className="text-xs text-muted-foreground font-medium uppercase mb-3">
               Estimated Current Fare
-            </h2>
-            <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-bold text-foreground" aria-label={`Current fare: ${results.currentFare} Kenya shillings`}>
-                KES {results.currentFare}
-              </span>
-            </div>
+            </p>
+            <FareDisplay amount={results.currentFare} size="lg" />
           </div>
 
-          <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border" role="group" aria-label="Fare statistics">
-            <div>
-              <h3 className="text-xs text-muted-foreground mb-1 font-semibold">Confidence</h3>
-              <p className="text-sm font-semibold text-foreground">{results.confidence}</p>
+          {/* Stats Grid */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground">Confidence</p>
+              <Badge variant={results.confidence === 'High' ? 'success' : 'neutral'}>
+                {results.confidence}
+              </Badge>
             </div>
-            <div>
-              <h3 className="text-xs text-muted-foreground mb-1 font-semibold">Based on</h3>
-              <p className="text-sm font-semibold text-foreground" aria-label={`${results.reportCount} community reports`}>
-                {results.reportCount} reports
-              </p>
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground">Based on</p>
+              <p className="text-sm font-semibold">{results.reportCount} reports</p>
             </div>
-            <div>
-              <h3 className="text-xs text-muted-foreground mb-1 font-semibold">Updated</h3>
-              <p className="text-sm font-semibold text-foreground">
-                <time>{results.lastUpdated}</time>
-              </p>
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground">Updated</p>
+              <p className="text-sm font-semibold">{results.lastUpdated}</p>
             </div>
           </div>
-        </section>
+        </div>
 
         {/* Fare Range */}
-        <section className="grid grid-cols-2 gap-4" aria-label="Fare range today">
-          <div className="bg-card border border-border rounded-xl shadow-card p-4">
-            <h3 className="text-xs text-muted-foreground mb-2 font-semibold">Lowest today</h3>
-            <p className="text-2xl font-bold text-foreground" aria-label={`Minimum fare: ${results.lowestToday} Kenya shillings`}>
-              KES {results.lowestToday}
-            </p>
+        <div className="grid grid-cols-3 gap-3 py-4 border-t border-border">
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground">Lowest Today</p>
+            <FareDisplay amount={results.lowestToday} size="sm" />
           </div>
-          <div className="bg-card border border-border rounded-xl shadow-card p-4">
-            <h3 className="text-xs text-muted-foreground mb-2 font-semibold">Highest today</h3>
-            <p className="text-2xl font-bold text-foreground" aria-label={`Maximum fare: ${results.highestToday} Kenya shillings`}>
-              KES {results.highestToday}
-            </p>
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground">Average</p>
+            <FareDisplay amount={results.averageFare} size="sm" />
           </div>
-        </section>
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground">Highest Today</p>
+            <FareDisplay amount={results.highestToday} size="sm" />
+          </div>
+        </div>
 
         {/* Recent Reports */}
-        <section className="bg-card border border-border rounded-xl shadow-card p-6 space-y-4" aria-label="Recent community reports">
-          <h2 className="text-base font-semibold text-foreground">Recent Reports</h2>
-          <div className="space-y-3" role="list">
+        <Section title="Recent Reports" subtitle="What others are reporting right now">
+          <div className="space-y-2">
             {results.reports.map((report) => (
-              <article key={report.id} className="flex items-start justify-between px-3 py-2 rounded-lg bg-muted/30" role="listitem">
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-foreground">{report.operator}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
-                    <Clock size={12} aria-hidden="true" />
-                    <time>{report.reportedAt}</time>
-                  </p>
-                </div>
-                <p className="text-sm font-semibold text-foreground shrink-0 ml-2" aria-label={`Reported fare: ${report.fare} Kenya shillings`}>
-                  KES {report.fare}
-                </p>
-              </article>
+              <ListItem
+                key={report.id}
+                primary={report.operator}
+                secondary={<time>{report.reportedAt}</time>}
+                meta={`KES ${report.fare}`}
+              />
             ))}
           </div>
-        </section>
+        </Section>
 
         {/* Report Button */}
-        <button
+        <Button
+          variant="primary"
+          size="lg"
           onClick={() => {
             setShowReportingForm(true);
             setReportForm({ from: results.from, to: results.to, operator: '', fare: '' });
           }}
-          className="w-full px-4 py-3 bg-primary text-primary-foreground text-sm font-semibold rounded-lg hover:bg-primary/90 transition-all active:scale-95"
+          className="w-full"
         >
           Report Fare
-        </button>
+        </Button>
       </div>
     );
   }
 
   // ─── REPORTING FORM ───────────────────────────────────────────────────────
   if (showReportingForm) {
-    const operators = ['Super Metro', 'Metrotrans', 'Forward Travelers', 'KBS', 'City Shuttle', 'Other'];
+    const operators = ['Super Metro', 'Metrotrans', 'Forward Travelers', 'City Shuttle', 'KBS', '2NK', 'Other'];
 
     return (
-      <div className="space-y-6 max-w-2xl">
-        {/* Back button */}
-        <nav aria-label="Page navigation">
-          <button
+      <div className="max-w-2xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="space-y-2">
+          <Button
+            variant="ghost"
             onClick={() => {
               setShowReportingForm(false);
               setReportForm({ from: '', to: '', operator: '', fare: '' });
             }}
-            className="text-sm text-primary font-medium hover:underline"
-            aria-label="Return to fare results"
           >
-            ← Back to results
-          </button>
-        </nav>
+            ← Back
+          </Button>
+          <div className="mt-4">
+            <h1>Report Fare</h1>
+            <p className="text-muted-foreground text-sm mt-1">
+              Help us keep fares accurate
+            </p>
+          </div>
+        </div>
 
         {/* Form */}
-        <form onSubmit={handleReportSubmit} className="bg-card border border-border rounded-xl shadow-card p-6 space-y-6" aria-label="Report matatu fare">
-          <header>
-            <h1 className="text-3xl font-bold text-foreground">Report Fare</h1>
-            <p className="text-sm text-muted-foreground mt-1">Help us keep fares accurate and current</p>
-          </header>
-
-          {/* Route fields */}
-          <fieldset className="space-y-4">
-            <legend className="sr-only">Route information</legend>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="report-from" className="block text-xs font-medium text-muted-foreground mb-2">
-                  FROM <span aria-label="required">*</span>
-                </label>
-                <input
-                  id="report-from"
-                  type="text"
-                  value={reportForm.from}
-                  onChange={(e) => setReportForm({ ...reportForm, from: e.target.value })}
-                  placeholder="e.g. CBD"
-                  aria-label="Departure location"
-                  required
-                  className="w-full px-4 py-2.5 text-sm bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                />
-              </div>
-              <div>
-                <label htmlFor="report-to" className="block text-xs font-medium text-muted-foreground mb-2">
-                  TO <span aria-label="required">*</span>
-                </label>
-                <input
-                  id="report-to"
-                  type="text"
-                  value={reportForm.to}
-                  onChange={(e) => setReportForm({ ...reportForm, to: e.target.value })}
-                  placeholder="e.g. Kangemi"
-                  aria-label="Destination location"
-                  required
-                  className="w-full px-4 py-2.5 text-sm bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                />
-              </div>
+        <form onSubmit={handleReportSubmit} className="space-y-6">
+          {/* Route */}
+          <Section title="Route">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Input
+                id="report-from"
+                label="FROM"
+                value={reportForm.from}
+                onChange={(e) => setReportForm({ ...reportForm, from: e.target.value })}
+                placeholder="CBD"
+                required
+              />
+              <Input
+                id="report-to"
+                label="TO"
+                value={reportForm.to}
+                onChange={(e) => setReportForm({ ...reportForm, to: e.target.value })}
+                placeholder="Kangemi"
+                required
+              />
             </div>
-          </fieldset>
+          </Section>
 
           {/* Operator */}
-          <fieldset className="space-y-3">
-            <legend className="text-xs font-medium text-muted-foreground mb-2 block">
-              Operator <span aria-label="required">*</span>
-            </legend>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2" role="group" aria-label="Select matatu operator">
+          <Section title="Operator">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {operators.map((op) => (
                 <button
                   key={op}
                   type="button"
                   onClick={() => setReportForm({ ...reportForm, operator: op })}
-                  aria-pressed={reportForm.operator === op}
-                  className={`px-3 py-2.5 rounded-lg border text-sm font-medium transition-all ${
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all border ${
                     reportForm.operator === op
-                      ? 'bg-primary border-primary text-primary-foreground'
-                      : 'bg-muted/40 border-border text-muted-foreground hover:border-primary/40'
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'bg-secondary text-foreground border-border hover:border-primary'
                   }`}
                 >
                   {op}
                 </button>
               ))}
             </div>
-          </fieldset>
+          </Section>
 
           {/* Fare */}
-          <fieldset className="space-y-2">
-            <legend className="sr-only">Fare information</legend>
-            <label htmlFor="fare-paid" className="block text-xs font-medium text-muted-foreground mb-2">
-              Fare Paid (KES) <span aria-label="required">*</span>
-            </label>
-            <input
+          <Section title="Fare">
+            <Input
               id="fare-paid"
               type="number"
+              label="Amount Paid (KES)"
               value={reportForm.fare}
               onChange={(e) => setReportForm({ ...reportForm, fare: e.target.value })}
-              placeholder="e.g. 150"
-              aria-label="Amount paid for fare in Kenya shillings"
+              placeholder="150"
               required
               min="0"
-              className="w-full px-4 py-2.5 text-sm bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
-          </fieldset>
+          </Section>
 
-          {/* Optional Fields */}
-          <details className="border-t border-border pt-6 space-y-4 group">
-            <summary className="text-sm font-medium text-primary hover:underline cursor-pointer list-none">
-              <span className="inline-block mr-2">{reportOptional.showOptional ? '▼' : '▶'}</span>
-              Optional details
+          {/* Optional */}
+          <details className="group">
+            <summary className="cursor-pointer text-sm font-medium text-primary hover:underline py-2">
+              Optional Details
             </summary>
-
-            <fieldset className="space-y-4 animate-in fade-in duration-200">
+            <div className="space-y-4 mt-4 pt-4 border-t border-border">
               {/* Traffic */}
-              <div>
-                <legend className="text-xs font-medium text-muted-foreground mb-2 block">Traffic</legend>
-                <div className="flex gap-2" role="group" aria-label="Traffic level">
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-foreground">Traffic</label>
+                <div className="flex gap-2">
                   {['Low', 'Medium', 'High'].map((level) => (
                     <button
                       key={level}
                       type="button"
                       onClick={() => setReportOptional({ ...reportOptional, traffic: level })}
-                      aria-pressed={reportOptional.traffic === level}
-                      className={`px-3 py-1.5 rounded text-sm font-medium border transition-all ${
+                      className={`px-3 py-1.5 rounded text-xs font-medium border transition-all ${
                         reportOptional.traffic === level
-                          ? 'bg-primary border-primary text-primary-foreground'
-                          : 'bg-muted/40 border-border text-muted-foreground hover:border-primary/40'
+                          ? 'bg-primary text-primary-foreground border-primary'
+                          : 'bg-secondary border-border hover:border-primary'
                       }`}
                     >
                       {level}
@@ -472,19 +408,18 @@ export default function FareSearchContent() {
               </div>
 
               {/* Weather */}
-              <div>
-                <legend className="text-xs font-medium text-muted-foreground mb-2 block">Weather</legend>
-                <div className="flex gap-2" role="group" aria-label="Weather conditions">
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-foreground">Weather</label>
+                <div className="flex gap-2">
                   {['Sunny', 'Rain'].map((condition) => (
                     <button
                       key={condition}
                       type="button"
                       onClick={() => setReportOptional({ ...reportOptional, weather: condition })}
-                      aria-pressed={reportOptional.weather === condition}
-                      className={`px-3 py-1.5 rounded text-sm font-medium border transition-all ${
+                      className={`px-3 py-1.5 rounded text-xs font-medium border transition-all ${
                         reportOptional.weather === condition
-                          ? 'bg-primary border-primary text-primary-foreground'
-                          : 'bg-muted/40 border-border text-muted-foreground hover:border-primary/40'
+                          ? 'bg-primary text-primary-foreground border-primary'
+                          : 'bg-secondary border-border hover:border-primary'
                       }`}
                     >
                       {condition}
@@ -494,32 +429,30 @@ export default function FareSearchContent() {
               </div>
 
               {/* Notes */}
-              <div>
-                <label htmlFor="additional-notes" className="block text-xs font-medium text-muted-foreground mb-2">
-                  Notes
-                </label>
+              <div className="space-y-1">
+                <label htmlFor="notes" className="text-xs font-medium text-foreground">Notes</label>
                 <textarea
-                  id="additional-notes"
+                  id="notes"
                   value={reportOptional.notes}
                   onChange={(e) => setReportOptional({ ...reportOptional, notes: e.target.value })}
-                  placeholder="Any additional details that affect the fare..."
-                  aria-label="Additional notes about the fare"
-                  className="w-full px-4 py-2.5 text-sm bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+                  placeholder="Any additional details..."
+                  className="input-field resize-none"
                   rows={3}
                 />
               </div>
-            </fieldset>
+            </div>
           </details>
 
           {/* Submit */}
-          <button
+          <Button
+            variant="primary"
+            size="lg"
             type="submit"
-            disabled={submitting}
-            aria-label={submitting ? 'Submitting your fare report' : 'Submit your fare report'}
-            className="w-full px-4 py-3 bg-primary text-primary-foreground text-sm font-semibold rounded-lg hover:bg-primary/90 disabled:opacity-70 disabled:cursor-not-allowed transition-all active:scale-95"
+            isLoading={submitting}
+            className="w-full"
           >
-            {submitting ? 'Submitting...' : 'Submit'}
-          </button>
+            {submitting ? 'Submitting' : 'Submit'}
+          </Button>
         </form>
       </div>
     );
