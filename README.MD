@@ -1,12 +1,14 @@
-# Next.js
+# Fare Tracker KE
 
-A modern Next.js 15 application built with TypeScript and Tailwind CSS.
+A modern Next.js 15 application for tracking public transportation fares across Kenya, featuring SACCOs, Matatus, and buses. Built with TypeScript and Tailwind CSS.
 
 ## 🚀 Features
 
 - **Next.js 15** - Latest version with improved performance and features
 - **React 19** - Latest React version with enhanced capabilities
 - **Tailwind CSS** - Utility-first CSS framework for rapid UI development
+- **Kenyan SACCO Tracking** - Monitor fare changes across popular Kenyan transportation operators
+- **Fare Contributions** - Community-driven fare data collection and verification
 
 ## 🛠️ Installation
 
