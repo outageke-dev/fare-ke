@@ -12,21 +12,19 @@ import {
   AlertCircle,
   Copy,
   Bus,
-  Train,
-  Zap,
-  TramFront,
+  BusFront,
+  Motorbike,
   Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ModeBadge, { TransitMode } from '@/components/ui/ModeBadge';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
+type KenyanTransitMode = 'Bus' | 'Matatu' | 'Motorbike';
+
 interface ContributionForm {
   // Route Info
-  agency: string;
-  transitMode: TransitMode;
-  routeNumber: string;
-  routeName: string;
+  transitMode: KenyanTransitMode;
   originStop: string;
   destinationStop: string;
   city: string;
@@ -36,20 +34,6 @@ interface ContributionForm {
   // Source
   sourceType: string;
 }
-
-const AGENCIES = [
-  'Jatco SACCO',
-  'Acsend SACCO',
-  'Coastal SACCO',
-  'Dar Express SACCO',
-  'Mash East SACCO',
-  'Emali SACCO',
-  'Scandinavian SACCO',
-  'Majani Express SACCO',
-  'Southern Star SACCO',
-  'Goldline SACCO',
-  'Other (specify below)',
-];
 
 const SOURCE_TYPES = [
   { id: 'src-official', value: 'official-website', label: 'Official Agency Website' },
@@ -65,20 +49,18 @@ export default function FareContributionContent() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [contributionId] = useState('CONTRIB-' + Math.floor(10000 + Math.random() * 90000));
-  const [selectedMode, setSelectedMode] = useState<TransitMode>('SACCO');
+  const [selectedMode, setSelectedMode] = useState<KenyanTransitMode>('Bus');
 
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     trigger,
     formState: { errors },
   } = useForm<ContributionForm>({
     defaultValues: {
-      agency: '',
-      transitMode: 'SACCO',
-      routeNumber: '',
-      routeName: '',
+      transitMode: 'Bus',
       originStop: '',
       destinationStop: '',
       city: '',
@@ -88,10 +70,8 @@ export default function FareContributionContent() {
     },
   });
 
-  const watchedAgency = watch('agency');
-
   const stepFields: (keyof ContributionForm)[][] = [
-    ['agency', 'transitMode', 'routeNumber', 'routeName', 'originStop', 'destinationStop', 'city'],
+    ['transitMode', 'originStop', 'destinationStop', 'city'],
     ['singleFare', 'sourceType'],
   ];
 
@@ -184,12 +164,11 @@ export default function FareContributionContent() {
                   Select the type of transit service for this route.
                 </p>
                 <div className="flex gap-3 flex-wrap">
-                  {(['Bus', 'Train', 'Metro', 'Tram'] as TransitMode[]).map((mode) => {
-                    const icons: Record<TransitMode, React.ReactNode> = {
+                  {(['Bus', 'Matatu', 'Motorbike'] as KenyanTransitMode[]).map((mode) => {
+                    const icons: Record<KenyanTransitMode, React.ReactNode> = {
                       Bus: <Bus size={16} />,
-                      Train: <Train size={16} />,
-                      Metro: <Zap size={16} />,
-                      Tram: <TramFront size={16} />,
+                      Matatu: <BusFront size={16} />,
+                      Motorbike: <Motorbike size={16} />,
                     };
                     return (
                       <button
@@ -212,94 +191,6 @@ export default function FareContributionContent() {
                 </div>
               </div>
 
-              {/* Agency */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-foreground mb-1">
-                    Transit Agency <span className="text-[color:var(--status-outdated)]">*</span>
-                  </label>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    The operator of this route.
-                  </p>
-                  <select
-                    {...register('agency', { required: 'Agency is required' })}
-                    className={`w-full text-sm bg-input border rounded-lg px-3 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all ${
-                      errors.agency ? 'border-[color:var(--status-outdated)]' : 'border-border'
-                    }`}
-                  >
-                    <option value="">Select agency…</option>
-                    {AGENCIES.map((a) => (
-                      <option key={`agency-${a}`} value={a}>
-                        {a}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.agency && (
-                    <p className="text-xs text-[color:var(--status-outdated)] mt-1 flex items-center gap-1">
-                      <AlertCircle size={11} />
-                      {errors.agency.message}
-                    </p>
-                  )}
-                </div>
-                {watchedAgency === 'Other (specify below)' && (
-                  <div>
-                    <label className="block text-sm font-semibold text-foreground mb-1">
-                      Agency Name (custom)
-                    </label>
-                    <input
-                      {...register('agencyCustom')}
-                      placeholder="e.g. Denver RTD"
-                      className="w-full text-sm bg-input border border-border rounded-lg px-3 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Route Number + Name */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-foreground mb-1">
-                    Route Number / ID <span className="text-[color:var(--status-outdated)]">*</span>
-                  </label>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    The official route number or code (e.g. 22, M1, BART-OAK).
-                  </p>
-                  <input
-                    {...register('routeNumber', { required: 'Route number is required' })}
-                    placeholder="e.g. 22, M1, BART-OAK"
-                    className={`w-full text-sm bg-input border rounded-lg px-3 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all ${
-                      errors.routeNumber ? 'border-[color:var(--status-outdated)]' : 'border-border'
-                    }`}
-                  />
-                  {errors.routeNumber && (
-                    <p className="text-xs text-[color:var(--status-outdated)] mt-1 flex items-center gap-1">
-                      <AlertCircle size={11} />
-                      {errors.routeNumber.message}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-foreground mb-1">
-                    Route Name <span className="text-[color:var(--status-outdated)]">*</span>
-                  </label>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    Descriptive name of the route (e.g. Clark Street Bus, Red Line Express).
-                  </p>
-                  <input
-                    {...register('routeName', { required: 'Route name is required' })}
-                    placeholder="e.g. Clark Street Bus"
-                    className={`w-full text-sm bg-input border rounded-lg px-3 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all ${
-                      errors.routeName ? 'border-[color:var(--status-outdated)]' : 'border-border'
-                    }`}
-                  />
-                  {errors.routeName && (
-                    <p className="text-xs text-[color:var(--status-outdated)] mt-1 flex items-center gap-1">
-                      <AlertCircle size={11} />
-                      {errors.routeName.message}
-                    </p>
-                  )}
-                </div>
-              </div>
 
               {/* Origin + Destination */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -452,11 +343,9 @@ export default function FareContributionContent() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <ReviewSection title="Route Info">
-                  <ReviewRow label="Agency" value={watchedAll.agency} />
                   <ReviewRow label="Mode">
                     <ModeBadge mode={selectedMode} />
                   </ReviewRow>
-                  <ReviewRow label="Route" value={`${watchedAll.routeNumber} — ${watchedAll.routeName}`} />
                   <ReviewRow label="Origin" value={watchedAll.originStop} />
                   <ReviewRow label="Destination" value={watchedAll.destinationStop} />
                   <ReviewRow label="City" value={watchedAll.city} />
