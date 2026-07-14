@@ -7,15 +7,15 @@ const modeConfig: Record<
   TransitMode,
   { icon: React.ReactNode; colorClass: string; bgClass: string }
 > = {
-  Bus: {
-    icon: <Bus size={11} />,
-    colorClass: 'text-mode-bus',
-    bgClass: 'bg-mode-bus-bg',
-  },
   Matatu: {
     icon: <BusFront size={11} />,
     colorClass: 'text-mode-matatu',
     bgClass: 'bg-mode-matatu-bg',
+  },
+  Bus: {
+    icon: <Bus size={11} />,
+    colorClass: 'text-mode-bus',
+    bgClass: 'bg-mode-bus-bg',
   },
   Motorbike: {
     icon: <Motorbike size={11} />,
