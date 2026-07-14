@@ -85,5 +85,10 @@ export default async function RouteDetailPage({ params }: RoutePageProps) {
   const fromName = decodeRouteName(from);
   const toName = decodeRouteName(to);
 
-  return <FareRouteDetail from={fromName} to={toName} />;
+  return (
+    <div className="max-w-2xl mx-auto py-8 px-6">
+      <h1>{fromName} to {toName}</h1>
+      <p>Route page is working!</p>
+    </div>
+  );
 }
