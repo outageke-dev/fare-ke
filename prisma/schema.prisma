@@ -1,0 +1,131 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Users ────────────────────────────────────────────────────────────────────
+model User {
+  id        String   @id @default(cuid())
+  email     String?  @unique
+  phone     String?  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reports FareReport[]
+
+  @@index([email])
+  @@index([phone])
+}
+
+// ─── Routes ───────────────────────────────────────────────────────────────────
+model Route {
+  id    String   @id @default(cuid())
+  from  String   // "CBD"
+  to    String   // "Kangemi"
+  slug  String   @unique // "cbd-to-kangemi" for SEO-friendly URLs
+
+  currentEstimatedFare Float
+  lowestTodayFare      Float
+  highestTodayFare     Float
+  averageFare          Float
+
+  totalReports  Int     @default(0)
+  lastUpdated   DateTime @default(now()) @updatedAt
+
+  confidence String    @default("low") // "high", "medium", "low"
+
+  reports       FareReport[]
+  trends        FareTrend[]
+
+  @@index([from, to])
+  @@index([slug])
+  @@fulltext([from, to, slug]) // For full-text search
+}
+
+// ─── Operators ────────────────────────────────────────────────────────────────
+model Operator {
+  id    String   @id @default(cuid())
+  name  String   @unique // "Super Metro"
+  slug  String   @unique // "super-metro"
+
+  reports FareReport[]
+
+  @@index([name])
+}
+
+// ─── Fare Reports ─────────────────────────────────────────────────────────────
+model FareReport {
+  id        String   @id @default(cuid())
+
+  routeId   String
+  route     Route @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  operatorId String
+  operator   Operator @relation(fields: [operatorId], references: [id])
+
+  userId    String?
+  user      User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  farePaid  Float
+
+  traffic   String? // "low", "medium", "high"
+  weather   String? // "sunny", "rain"
+  notes     String?
+
+  isOutlier Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([routeId])
+  @@index([operatorId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// ─── Fare Trends (historical data) ────────────────────────────────────────────
+model FareTrend {
+  id        String   @id @default(cuid())
+
+  routeId   String
+  route     Route @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  date      DateTime
+
+  averageFare   Float
+  medianFare    Float
+  minFare       Float
+  maxFare       Float
+  reportCount   Int
+
+  confidence String // "high", "medium", "low"
+
+  createdAt DateTime @default(now())
+
+  @@index([routeId, date])
+  @@unique([routeId, date])
+}
+
+// ─── Analytics ────────────────────────────────────────────────────────────────
+model Analytics {
+  id        String   @id @default(cuid())
+
+  event     String // "search", "report", "view"
+  routeId   String?
+  userId    String?
+
+  metadata  Json?    // Additional context
+
+  createdAt DateTime @default(now())
+
+  @@index([event])
+  @@index([createdAt])
+  @@index([routeId])
+}
