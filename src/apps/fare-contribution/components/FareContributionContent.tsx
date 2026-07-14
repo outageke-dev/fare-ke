@@ -55,16 +55,16 @@ interface ContributionForm {
 }
 
 const AGENCIES = [
-  'Chicago Transit Authority',
-  'New York MTA',
-  'NJ Transit',
-  'Bay Area Rapid Transit (BART)',
-  'Washington Metro (WMATA)',
-  'MBTA (Boston)',
-  'LA Metro',
-  'San Francisco Municipal Railway (SFMTA)',
-  'Long Island Rail Road',
-  'Metro-North Railroad',
+  'Jatco SACCO',
+  'Acsend SACCO',
+  'Coastal SACCO',
+  'Dar Express SACCO',
+  'Mash East SACCO',
+  'Emali SACCO',
+  'Scandinavian SACCO',
+  'Majani Express SACCO',
+  'Southern Star SACCO',
+  'Goldline SACCO',
   'Other (specify below)',
 ];
 
@@ -94,7 +94,7 @@ export default function FareContributionContent() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [contributionId] = useState('CONTRIB-' + Math.floor(10000 + Math.random() * 90000));
-  const [selectedMode, setSelectedMode] = useState<TransitMode>('Bus');
+  const [selectedMode, setSelectedMode] = useState<TransitMode>('SACCO');
 
   const {
     register,
@@ -107,7 +107,7 @@ export default function FareContributionContent() {
     defaultValues: {
       agency: '',
       agencyCustom: '',
-      transitMode: 'Bus',
+      transitMode: 'SACCO',
       routeNumber: '',
       routeName: '',
       originStop: '',
@@ -123,7 +123,7 @@ export default function FareContributionContent() {
       zone: 'Flat Fare',
       zoneFrom: '',
       zoneTo: '',
-      currency: 'USD',
+      currency: 'KES',
       effectiveDate: '',
       expiryDate: '',
       fareNotes: '',
@@ -408,7 +408,7 @@ export default function FareContributionContent() {
                 </p>
                 <input
                   {...register('city', { required: 'City is required' })}
-                  placeholder="e.g. Chicago, IL"
+                  placeholder="e.g. Nairobi, Kenya"
                   className={`w-full text-sm bg-input border rounded-lg px-3 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all ${
                     errors.city ? 'border-[color:var(--status-outdated)]' : 'border-border'
                   }`}
