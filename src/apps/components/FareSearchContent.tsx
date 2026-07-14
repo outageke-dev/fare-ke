@@ -173,7 +173,7 @@ export default function FareSearchContent() {
                     form?.dispatchEvent(new Event('submit', { bubbles: true }));
                   }, 0);
                 }}
-                className="w-full text-left px-4 py-3 rounded-lg bg-secondary/40 hover:bg-secondary/60 transition-colors"
+                className="w-full text-left px-4 py-3 rounded-lg bg-secondary hover:bg-secondary transition-colors"
               >
                 <p className="text-sm font-medium text-foreground">
                   {route.from} → {route.to}
