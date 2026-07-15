@@ -35,3 +35,18 @@ jest-test-results.json
 
 # Optional: if using TurboRepo or monorepo
 turbo/
+
+# Android/Gradle
+.gradle/
+.idea/
+*.iml
+*.apk
+*.ap_
+build/
+gen/
+local.properties
+gradle-app.setting
+!gradle-wrapper.jar
+captures/
+.externalNativeBuild
+.cxx/

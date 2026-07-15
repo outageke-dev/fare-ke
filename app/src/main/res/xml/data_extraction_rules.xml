@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <domain-config>
+        <domain name="sticker_database">
+            <skip-backup path="*" />
+        </domain>
+        <domain name="stickers">
+            <skip-backup path="*" />
+        </domain>
+    </domain-config>
+</data-extraction-rules>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sticker Vault</string>
+    <string name="share_sticker_title">Add to Sticker Vault</string>
+    <string name="enable_ime">Enable as Input Method</string>
+    <string name="clear_all">Clear All Stickers</string>
+    <string name="all_stickers">All Stickers</string>
+    <string name="recent">Recent</string>
+    <string name="folders">Folders</string>
+    <string name="settings">Settings</string>
+    <string name="sticker_saved">Sticker saved!</string>
+    <string name="stickers_saved">%d stickers saved!</string>
+    <string name="failed_to_save">Failed to save sticker</string>
+    <string name="ime_instructions">Go to Settings &gt; Keyboard &amp; input methods to enable Sticker Vault as your input method</string>
+</resources>
