@@ -4,9 +4,9 @@ import android.content.Context
 import android.graphics.BitmapFactory
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AbsListView
 import android.widget.BaseAdapter
 import android.widget.ImageView
-import android.widget.LinearLayout
 import com.stickervault.db.Sticker
 import com.stickervault.storage.StickerStorage
 
@@ -28,7 +28,7 @@ class StickerGridAdapter(
             convertView
         } else {
             ImageView(context).apply {
-                layoutParams = LinearLayout.LayoutParams(100, 100)
+                layoutParams = AbsListView.LayoutParams(120, 120)
                 scaleType = ImageView.ScaleType.CENTER_CROP
             }
         }

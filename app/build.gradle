@@ -1,17 +1,14 @@
-plugins {
-    id 'com.android.application'
-    id 'kotlin-android'
-    id 'kotlin-kapt'
-}
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
-    namespace 'com.stickervault'
-    compileSdk 34
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.stickervault"
         minSdk 24
-        targetSdk 34
+        targetSdk 33
         versionCode 1
         versionName "1.0.0"
 

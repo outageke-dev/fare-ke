@@ -102,11 +102,21 @@ class MainActivity : AppCompatActivity() {
 
     private fun clearAllStickers() {
         lifecycleScope.launch {
-            val allStickers = storage.getAllStickerFiles()
-            allStickers.forEach { it.delete() }
-            Toast.makeText(this@MainActivity, "All stickers cleared", Toast.LENGTH_SHORT)
-                .show()
-            loadStickers()
+            try {
+                val allStickers = db.stickerDao().getAllStickers()
+                allStickers.collect { stickers ->
+                    stickers.forEach { sticker ->
+                        db.stickerDao().deleteSticker(sticker)
+                        storage.deleteStickerFile(sticker.filename)
+                    }
+                    Toast.makeText(this@MainActivity, "All stickers cleared", Toast.LENGTH_SHORT)
+                        .show()
+                }
+                loadStickers()
+            } catch (e: Exception) {
+                Toast.makeText(this@MainActivity, "Error clearing stickers: ${e.message}", Toast.LENGTH_SHORT)
+                    .show()
+            }
         }
     }
 }
