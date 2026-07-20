@@ -3,10 +3,10 @@ import { notFound } from 'next/navigation';
 import FareRouteDetail from '@/components/routes/FareRouteDetail';
 
 interface RoutePageProps {
-  params: Promise<{
+  params: {
     from: string;
     to: string;
-  }>;
+  };
 }
 
 // Decode URL slug back to location names
@@ -20,7 +20,7 @@ function decodeRouteName(slug: string): string {
 export async function generateMetadata({
   params,
 }: RoutePageProps): Promise<Metadata> {
-  const { from, to } = await params;
+  const { from, to } = params;
   const fromName = decodeRouteName(from);
   const toName = decodeRouteName(to);
 
@@ -66,8 +66,8 @@ export async function generateStaticParams(): Promise<
   return popularRoutes;
 }
 
-export default async function RouteDetailPage({ params }: RoutePageProps) {
-  const { from, to } = await params;
+export default function RouteDetailPage({ params }: RoutePageProps) {
+  const { from, to } = params;
   const fromName = decodeRouteName(from);
   const toName = decodeRouteName(to);
 
