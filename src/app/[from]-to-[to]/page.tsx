@@ -20,7 +20,16 @@ function decodeRouteName(slug: string): string {
 export async function generateMetadata({
   params,
 }: RoutePageProps): Promise<Metadata> {
-  const { from, to } = await params;
+  const resolvedParams = await params;
+
+  if (!resolvedParams?.from || !resolvedParams?.to) {
+    return {
+      title: 'Matatu Fare | Nauli',
+      description: 'Real-time matatu fares in Kenya',
+    };
+  }
+
+  const { from, to } = resolvedParams;
   const fromName = decodeRouteName(from);
   const toName = decodeRouteName(to);
 
