@@ -1,12 +1,11 @@
-# Nauli
+ Nauli soon to be Fareke 😁 Just you Wait
 
 A fast, focused matatu fare tracking app for Kenya. 
+Answers one question: How much is from point A to B on a matatu
 
-**Answers one question:** "How much am I most likely to pay if I board a matatu RIGHT NOW?"
+Nauli reports what commuters are actually paying in real time, based on community intelligence (like Waze for matatu fares).
 
-Nauli reports what commuters are **actually paying in real time**, based on community intelligence (like Waze for matatu fares).
-
-## 🚀 Features
+ Features
 
 - **Real-time fare estimates** - Based on actual community reports
 - **Confidence scoring** - Shows reliability of the current estimate
@@ -15,7 +14,7 @@ Nauli reports what commuters are **actually paying in real time**, based on comm
 - **Community intelligence** - Like Waze, but for matatu fares in Kenya
 - **Simple, focused UI** - Get the fare you need in 3 seconds
 
-## 🛠️ Installation
+ Installation
 
 1. Install dependencies:
   ```bash
@@ -32,7 +31,7 @@ Nauli reports what commuters are **actually paying in real time**, based on comm
   ```
 3. Open [http://localhost:4028](http://localhost:4028) with your browser to see the result.
 
-## 📁 Project Structure
+ Project Structure
 
 ```
 nextjs/
@@ -50,7 +49,7 @@ nextjs/
 
 ```
 
-## 📖 How It Works
+ How It Works
 
 **Home Screen**
 - Enter FROM and TO locations
@@ -64,12 +63,9 @@ nextjs/
 - Read recent reports from other commuters
 - Submit your own fare report
 
-**Reporting Flow**
-- Required: From, To, Operator, Fare Paid
-- Optional: Traffic level, Weather, Notes
-- Takes under 5 seconds
 
-## 🎨 Design
+
+Design
 
 This project uses Tailwind CSS for styling with the following features:
 - Simple, focused UI (no dashboards or hero sections)
@@ -77,7 +73,7 @@ This project uses Tailwind CSS for styling with the following features:
 - Minimal but functional interface
 - Fast load times
 
-## 📦 Available Scripts
+ Available Scripts
 
 - `npm run dev` - Start development server on port 4028
 - `npm run build` - Build the application for production
@@ -87,7 +83,7 @@ This project uses Tailwind CSS for styling with the following features:
 - `npm run lint:fix` - Fix ESLint issues automatically
 - `npm run format` - Format code with Prettier
 
-## 📱 Deployment
+ Deployment
 
 Build the application for production:
 
@@ -95,7 +91,7 @@ Build the application for production:
   npm run build
   ```
 
-## 📚 Learn More
+ Learn More
 
 To learn more about Next.js, take a look at the following resources:
 
@@ -104,13 +100,13 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out the [Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## 🙏 Acknowledgments
+Acknowledgments
 
 - Built with codex
 - Powered by Next.js and React
 - Styled with Tailwind CSS
 
-## 🤖 AI Assistance
+ AI Assistance
 
 This project was developed with substantial assistance from Codex 5.6 (Luna).
 While the overall product design, feature set, and UX direction were defined by the project's designer, Codex 5.6 (Lunar) was used extensively during implementation to:
