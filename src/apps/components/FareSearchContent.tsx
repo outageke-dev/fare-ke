@@ -9,6 +9,7 @@ import Section from '@/components/ui/Section';
 import Badge from '@/components/ui/Badge';
 import FareDisplay from '@/components/ui/FareDisplay';
 import ListItem from '@/components/ui/ListItem';
+import { addLocalReportedFare } from '@/lib/local-reported-fares';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 interface FareReport {
@@ -66,6 +67,9 @@ export default function FareSearchContent() {
     traffic: '',
     weather: '',
     notes: '',
+    period: 'normal',
+    reportedAt: '',
+    fuel: '',
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -108,16 +112,60 @@ export default function FareSearchContent() {
     }
 
     setSubmitting(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setSubmitting(false);
 
-    toast.success('Thank you. Your report helps commuters across Kenya.', {
-      duration: 4000,
-    });
+    try {
+      let reportSaved = false;
 
-    setReportForm({ from: '', to: '', operator: '', fare: '' });
-    setReportOptional({ traffic: '', weather: '', notes: '' });
-    setShowReportingForm(false);
+      try {
+        const response = await fetch('/api/fare-reports', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            from: reportForm.from,
+            to: reportForm.to,
+            operatorName: reportForm.operator,
+            farePaid: Number(reportForm.fare),
+            traffic: reportOptional.traffic || undefined,
+            weather: reportOptional.weather || undefined,
+            notes: reportOptional.notes || undefined,
+          }),
+        });
+
+        reportSaved = response.ok;
+      } catch (error) {
+        reportSaved = false;
+      }
+
+      if (!reportSaved) {
+        addLocalReportedFare({
+          from: reportForm.from,
+          to: reportForm.to,
+          operator: reportForm.operator,
+          fare: Number(reportForm.fare),
+          traffic: reportOptional.traffic || undefined,
+          weather: reportOptional.weather || undefined,
+          notes: reportOptional.notes || undefined,
+        });
+      }
+
+      toast.success(
+        reportSaved
+          ? 'Thank you. Your report helps commuters across Kenya.'
+          : 'Saved locally. View it in Reports while database access is unavailable.',
+        {
+          duration: 4000,
+        }
+      );
+
+      setReportForm({ from: '', to: '', operator: '', fare: '' });
+      setReportOptional({ traffic: '', weather: '', notes: '', period: 'normal', reportedAt: '', fuel: '' });
+      setShowReportingForm(false);
+    } catch (error) {
+      console.error(error);
+      toast.error('Your report could not be saved right now.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // ─── HOME SCREEN ──────────────────────────────────────────────────────────
@@ -389,7 +437,7 @@ export default function FareSearchContent() {
               {/* Traffic */}
               <div className="space-y-2">
                 <label className="text-xs font-medium text-foreground">Traffic</label>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {['Low', 'Medium', 'High'].map((level) => (
                     <button
                       key={level}
@@ -407,11 +455,41 @@ export default function FareSearchContent() {
                 </div>
               </div>
 
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-foreground">Time context</label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { value: 'peak', label: 'Peak hours' },
+                    { value: 'normal', label: 'Normal hours' },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setReportOptional({ ...reportOptional, period: option.value })}
+                      className={`px-3 py-1.5 rounded text-xs font-medium border transition-all ${
+                        reportOptional.period === option.value
+                          ? 'bg-primary text-primary-foreground border-primary'
+                          : 'bg-secondary border-border hover:border-primary'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+                <Input
+                  id="reported-at"
+                  label="Time reported"
+                  value={reportOptional.reportedAt}
+                  onChange={(e) => setReportOptional({ ...reportOptional, reportedAt: e.target.value })}
+                  placeholder="e.g. 7:15 PM"
+                />
+              </div>
+
               {/* Weather */}
               <div className="space-y-2">
                 <label className="text-xs font-medium text-foreground">Weather</label>
-                <div className="flex gap-2">
-                  {['Sunny', 'Rain'].map((condition) => (
+                <div className="flex flex-wrap gap-2">
+                  {['Sunny', 'Rain', 'Cloudy'].map((condition) => (
                     <button
                       key={condition}
                       type="button"
@@ -423,6 +501,26 @@ export default function FareSearchContent() {
                       }`}
                     >
                       {condition}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-foreground">Fuel condition</label>
+                <div className="flex flex-wrap gap-2">
+                  {['Normal', 'High', 'Low'].map((fuel) => (
+                    <button
+                      key={fuel}
+                      type="button"
+                      onClick={() => setReportOptional({ ...reportOptional, fuel: fuel })}
+                      className={`px-3 py-1.5 rounded text-xs font-medium border transition-all ${
+                        reportOptional.fuel === fuel
+                          ? 'bg-primary text-primary-foreground border-primary'
+                          : 'bg-secondary border-border hover:border-primary'
+                      }`}
+                    >
+                      {fuel}
                     </button>
                   ))}
                 </div>

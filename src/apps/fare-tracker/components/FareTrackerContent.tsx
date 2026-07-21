@@ -1,14 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import dynamic from 'next/dynamic';
-import { TrendingUp, TrendingDown, Bell, Trash2, Plus, Clock, MapPin, RefreshCw, AlertTriangle, CheckCircle, Activity,  } from 'lucide-react';
+import { TrendingUp, TrendingDown, Bell, Trash2, Plus, Clock, MapPin, RefreshCw, AlertTriangle, CheckCircle, Activity, Search } from 'lucide-react';
 import ModeBadge, { TransitMode } from '@/components/ui/ModeBadge';
 import ChangeChip, { ChangeDirection } from '@/components/ui/ChangeChip';
 import { toast } from 'sonner';
-
-const FareTrackerChart = dynamic(() => import('./FareTrackerChart'), { ssr: false });
-const ModeBarChart = dynamic(() => import('./ModeBarChart'), { ssr: false });
+import FareTrackerChart from './FareTrackerChart';
+import ModeBarChart from './ModeBarChart';
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 // Backend: GET /api/tracker/routes?userId= for user's tracked routes
@@ -317,6 +315,7 @@ export default function FareTrackerContent() {
   );
   const [filterMode, setFilterMode] = useState<TransitMode | 'All'>('All');
   const [sortCol, setSortCol] = useState<'fare' | 'change' | 'checked'>('checked');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const selectedRoute = routes.find((r) => r.id === selectedRouteId) || ({
     id: '',
@@ -337,8 +336,15 @@ export default function FareTrackerContent() {
     fareHistory: [],
   } as TrackedRoute);
 
+  const normalizedSearch = searchQuery.trim().toLowerCase();
+
   const filteredRoutes = routes
-    .filter((r) => filterMode === 'All' || r.mode === filterMode)
+    .filter((r) => {
+      const matchesMode = filterMode === 'All' || r.mode === filterMode;
+      const haystack = `${r.routeNumber} ${r.routeName} ${r.agency} ${r.origin} ${r.destination}`.toLowerCase();
+      const matchesSearch = !normalizedSearch || haystack.includes(normalizedSearch);
+      return matchesMode && matchesSearch;
+    })
     .sort((a, b) => {
       if (sortCol === 'fare') return b.currentFare - a.currentFare;
       if (sortCol === 'change') return Math.abs(b.currentFare - b.previousFare) - Math.abs(a.currentFare - a.previousFare);
@@ -371,14 +377,14 @@ export default function FareTrackerContent() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">Fare Tracker</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Monitor fare changes across your tracked routes. Alerts fire when a fare is updated.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-full border border-border">
             <Activity size={12} className="text-[color:var(--status-verified)]" />
             <span>Live — synced Jul 14, 2026</span>
@@ -394,7 +400,7 @@ export default function FareTrackerContent() {
       </div>
 
       {/* KPI Cards — 4 cards → 2×2 on md, 4-col on xl */}
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <KpiCard
           label="Routes Tracked"
           value={String(totalTracked)}
@@ -509,39 +515,49 @@ export default function FareTrackerContent() {
 
       {/* Tracked Routes Table */}
       <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <div>
-            <h2 className="text-base font-semibold text-foreground">Tracked Routes</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {filteredRoutes.length} of {routes.length} routes shown
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            {/* Mode filter */}
-            <div className="flex items-center gap-1">
-              {(['All', 'Bus', 'Matatu', 'Motorbike'] as (TransitMode | 'All')[]).map((mode) => (
-                <button
-                  key={`filter-KSH{mode}`}
-                  onClick={() => setFilterMode(mode)}
-                  className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-all KSH{
-                    filterMode === mode
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : 'bg-muted/40 text-muted-foreground border-border hover:border-primary/30'
-                  }`}
-                >
-                  {mode}
-                </button>
-              ))}
+        <div className="flex flex-col gap-3 px-5 py-4 border-b border-border">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">Tracked Routes</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {filteredRoutes.length} of {routes.length} routes shown
+              </p>
             </div>
-            <select
-              value={sortCol}
-              onChange={(e) => setSortCol(e.target.value as 'fare' | 'change' | 'checked')}
-              className="text-xs bg-input border border-border rounded-lg px-2.5 py-1.5 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            >
-              <option value="checked">Sort: Last Checked</option>
-              <option value="fare">Sort: Fare Amount</option>
-              <option value="change">Sort: Change Size</option>
-            </select>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
+              <div className="relative">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search routes"
+                  className="w-full sm:w-48 rounded-lg border border-border bg-background/80 py-2 pl-9 pr-3 text-sm text-foreground outline-none ring-0 placeholder:text-muted-foreground"
+                />
+              </div>
+              <div className="flex flex-wrap items-center gap-1">
+                {(['All', 'Bus', 'Matatu', 'Motorbike'] as (TransitMode | 'All')[]).map((mode) => (
+                  <button
+                    key={`filter-${mode}`}
+                    onClick={() => setFilterMode(mode)}
+                    className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-all ${
+                      filterMode === mode
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-muted/40 text-muted-foreground border-border hover:border-primary/30'
+                    }`}
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
+              <select
+                value={sortCol}
+                onChange={(e) => setSortCol(e.target.value as 'fare' | 'change' | 'checked')}
+                className="text-xs bg-input border border-border rounded-lg px-2.5 py-1.5 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="checked">Sort: Last Checked</option>
+                <option value="fare">Sort: Fare Amount</option>
+                <option value="change">Sort: Change Size</option>
+              </select>
+            </div>
           </div>
         </div>
 

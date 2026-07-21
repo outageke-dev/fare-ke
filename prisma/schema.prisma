@@ -47,7 +47,6 @@ model Route {
 
   @@index([from, to])
   @@index([slug])
-  @@fulltext([from, to, slug]) // For full-text search
 }
 
 // ─── Operators ────────────────────────────────────────────────────────────────

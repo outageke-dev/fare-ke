@@ -110,4 +110,20 @@ You can check out the [Next.js GitHub repository](https://github.com/vercel/next
 - Powered by Next.js and React
 - Styled with Tailwind CSS
 
-Built with ❤️ on Rocket.new
+## 🤖 AI Assistance
+
+This project was developed with substantial assistance from Codex 5.6 (Luna).
+While the overall product design, feature set, and UX direction were defined by the project's designer, Codex 5.6 (Lunar) was used extensively during implementation to:
+
+- Scaffold the Next.js application and project structure
+- Generate UI components and pages from design notes
+- Implement server-side routes and database access patterns
+- Help diagnose and fix build and schema issues (Prisma, Next.js)
+- Prototype local fallbacks (localStorage) for offline testing
+- Suggest refinements to UX, accessibility, and error handling
+
+The code produced by Codex was reviewed, adapted, and integrated by the project team. This acknowledgment reflects the role of the AI as a development assistant that accelerated implementation and debugging while the designer directed the product.
+
+**AI Assistant:** Codex 5.6 (Lunar)
+
+Built with Codex

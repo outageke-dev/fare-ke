@@ -17,10 +17,28 @@ export interface FareReportWithOperator {
   farePaid: number;
   traffic?: string;
   weather?: string;
+  notes?: string;
   operator: {
     name: string;
   };
+  route: {
+    from: string;
+    to: string;
+  };
   createdAt: Date;
+}
+
+export interface ReportedFareSummary {
+  id: string;
+  route: string;
+  operator: string;
+  fare: number;
+  reportedAt: string;
+  confirmedBy: number;
+  context: string;
+  window: string;
+  weather: string;
+  fuel: string;
 }
 
 /**
@@ -142,9 +160,68 @@ export async function getRecentReportsSince(
       operator: {
         select: { name: true },
       },
+      route: {
+        select: { from: true, to: true },
+      },
     },
     orderBy: {
       createdAt: 'desc',
     },
   }) as Promise<FareReportWithOperator[]>;
+}
+
+export async function getReportedFareSummaries(): Promise<ReportedFareSummary[]> {
+  const reports = await prisma.fareReport.findMany({
+    where: {
+      isOutlier: false,
+    },
+    include: {
+      operator: {
+        select: { name: true },
+      },
+      route: {
+        select: { from: true, to: true },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    take: 20,
+  });
+
+  return reports.map((report: {
+    id: string;
+    farePaid: number;
+    traffic?: string | null;
+    weather?: string | null;
+    notes?: string | null;
+    operator: { name: string };
+    route: { from: string; to: string };
+    createdAt: Date;
+  }) => ({
+    id: report.id,
+    route: `${report.route.from} → ${report.route.to}`,
+    operator: report.operator.name,
+    fare: report.farePaid,
+    reportedAt: formatRelativeTime(report.createdAt),
+    confirmedBy: 1,
+    context: report.notes ? 'Reported via community input' : 'Standard report',
+    window: 'Submitted recently',
+    weather: report.weather ?? '—',
+    fuel: '—',
+  }));
+}
+
+function formatRelativeTime(date: Date): string {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMinutes = Math.max(1, Math.floor(diffMs / (1000 * 60)));
+
+  if (diffMinutes < 60) return `${diffMinutes} min ago`;
+
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours} hr ago`;
+
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
 }
